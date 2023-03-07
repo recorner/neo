@@ -3,9 +3,10 @@ import { validate } from '$lib/captcha';
 import { fail, redirect } from '@sveltejs/kit';
 import prisma from '$lib/prisma';
 import argon from 'argon2';
+import jwt from 'jsonwebtoken';
 
 export const actions: Actions = {
-  async register({ cookies, request }) {
+  async login({ cookies, request }) {
     const body = await request.formData();
 
     const captcha = cookies.get('captcha') as string;
@@ -19,36 +20,42 @@ export const actions: Actions = {
     const username = body.get('username');
     const password = body.get('password');
 
-    if (password !== body.get('confirmPassword')) {
-      return fail(400, { error: 'confirmPassword' });
-    }
-
     if (typeof username !== 'string' || !RegExp('[a-zA-Z0-9_]{3,16}').test(username)) {
-      return fail(400, { error: 'username' });
+      return fail(400, { error: 'credentials' });
     }
 
     if (typeof password !== 'string' || password.length < 8) {
-      return fail(400, { error: 'password' });
+      return fail(400, { error: 'credentials' });
     }
 
-    return await prisma.user
-      .create({
-        data: {
-          username,
-          password: await argon.hash(password),
-        },
-      })
-      .then((user) => {
-        if (user) {
-          throw redirect(302, '/auth/login');
-        }
-      })
-      .catch((e) => {
-        if (e.code === 'P2002') {
-          return fail(400, { error: 'username' });
-        } else {
-          throw e;
-        }
-      });
+    const user = await prisma.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!user || !(await argon.verify(user.password, password))) {
+      return fail(400, { error: 'credentials' });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+      },
+      process.env.JWT_SECRET || '1',
+      {
+        expiresIn: '2d',
+      }
+    );
+
+    cookies.set('token', token, {
+      path: '/',
+      maxAge: 1000 * 60 * 60 * 24 * 2,
+      httpOnly: true,
+      sameSite: 'lax',
+    });
+
+    throw redirect(302, '/');
   },
 };
