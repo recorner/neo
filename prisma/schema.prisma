@@ -9,3 +9,120 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  ADMIN
+  SELLER
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+
+  createdAt DateTime @default(now())
+  role      Role[]
+
+  uploads  Attachment[]
+  products Product[]
+
+  topUps TopUp[]
+  orders Order[]
+}
+
+model Attachment {
+  id       Int    @id @default(autoincrement())
+  filename String
+
+  createdAt DateTime @default(now())
+  uploader  User     @relation(fields: [userId], references: [id])
+  userId    Int
+
+  // used by
+  categories Category[]
+  products   Product[]
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  image        Attachment? @relation(references: [id], fields: [attachmentId])
+  attachmentId Int?
+
+  products Product[]
+}
+
+enum ProductType {
+  DOWNLOAD
+  LICENSE
+  SERVICE
+}
+
+enum ProductTags {
+  DELETED
+}
+
+model Product {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+
+  type ProductType   @default(SERVICE)
+  tags ProductTags[]
+
+  image        Attachment @relation(fields: [attachmentId], references: [id])
+  attachmentId Int
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  seller User @relation(fields: [userId], references: [id])
+  userId Int
+
+  createdAt   DateTime    @default(now())
+  cartEntries CartEntry[]
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  EXPIRED
+  REFUNDED
+}
+
+model TopUp {
+  id        Int     @id @default(autoincrement())
+  amount    Float
+  reference String
+  completed Boolean @default(false)
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  createdAt DateTime @default(now())
+}
+
+model CartEntry {
+  id       Int @id @default(autoincrement())
+  quantity Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  order   Order? @relation(fields: [orderId], references: [id])
+  orderId Int?
+}
+
+model Order {
+  id     Int         @id @default(autoincrement())
+  status OrderStatus @default(PENDING)
+
+  buyer  User @relation(fields: [userId], references: [id])
+  userId Int
+
+  cart      CartEntry[]
+  createdAt DateTime    @default(now())
+}
