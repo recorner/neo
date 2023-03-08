@@ -45,4 +45,59 @@ export const actions: Actions = {
 
     throw redirect(302, payment.invoice_url);
   },
+  async transfer({ request, cookies }) {
+    const user = userFromToken(cookies.get('token'));
+    if (!user?.id) return fail(401, { error: 'auth' });
+
+    const body = await request.formData();
+
+    const amount = Number(body.get('amount'));
+    const recipient = await prisma.user.findUnique({
+      where: {
+        username: body.get('username') as string,
+      },
+      select: {
+        id: true,
+        balance: true,
+      },
+    });
+
+    const sender = await prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      select: {
+        id: true,
+        balance: true,
+      },
+    });
+
+    if (!recipient || !sender) return fail(404, { error: 'user' });
+    if (amount < 1 || amount > sender.balance) return fail(400, { error: 'amount' });
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: {
+          id: sender.id,
+        },
+        data: {
+          balance: {
+            decrement: amount,
+          },
+        },
+      }),
+      prisma.user.update({
+        where: {
+          id: recipient.id,
+        },
+        data: {
+          balance: {
+            increment: amount,
+          },
+        },
+      }),
+    ]);
+
+    return { success: true };
+  },
 };
