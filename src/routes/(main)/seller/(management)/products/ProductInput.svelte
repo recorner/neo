@@ -60,9 +60,10 @@
       </div>
     </div>
   </div>
-  <select name="type" class="input text-sm" value={product?.type || 'download'}>
-    <option class="text-black" value="DOWNLOAD">Download</option>
-    <option class="text-black" value="LICENSE">License</option>
+  <select name="type" class="input text-sm">
+    <option value="0" selected={!product} disabled>Type</option>
+    <option class="text-black" value="DOWNLOAD" selected={product?.type == 'DOWNLOAD'}>Download</option>
+    <option class="text-black" value="LICENSE" selected={product?.type == 'LICENSE'}>License</option>
   </select>
   <textarea class="input" name="stock" cols="30" rows="5" placeholder="Stock" value={product?.stock || ''} />
 </div>

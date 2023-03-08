@@ -29,7 +29,8 @@
           <td>{product.category.name}</td>
           <td>${product.price.toFixed(2)}</td>
           <td>{product.stock}</td>
-          <td class="flex justify-end">
+          <td class="flex justify-end gap-3">
+            <a href="/product/{product.id}" class="btn w-max">View</a>
             <a href="/seller/products/{product.id}" class="btn w-max">Edit</a>
           </td>
         </tr>

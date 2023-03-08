@@ -68,7 +68,7 @@
               <Icon src={Image} class="w-5 h-5" />
             </button>
             <button
-              class="hover:text-blue-400 transition"
+              class="hover:text-red-400 transition"
               on:click={() => {
                 categories = categories.filter((category) => category.id !== item.id);
               }}
