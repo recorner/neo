@@ -30,11 +30,37 @@
     @apply block w-full px-3 py-2 bg-blue-500 rounded-lg text-sm hover:bg-blue-600 transition focus:ring-2 ring-blue-500/50;
   }
 
+  .btn.gray {
+    @apply bg-neutral-700 hover:bg-neutral-600;
+  }
+
+  .btn.white {
+    @apply bg-white text-neutral-900 hover:bg-neutral-100;
+  }
+
   .card {
     @apply bg-neutral-850 rounded-lg p-4;
   }
 
   .input {
     @apply flex gap-2 items-center bg-neutral-800 border border-neutral-700 px-3 py-2 rounded-lg focus-within:border-neutral-600 transition;
+  }
+
+  .page-btn {
+    @apply rounded-full hover:bg-neutral-700 transition p-1;
+  }
+
+  th,
+  td {
+    @apply text-left px-4 py-3;
+  }
+
+  th,
+  tfoot > tr {
+    @apply bg-neutral-800;
+  }
+
+  tr:nth-child(even) {
+    @apply bg-neutral-800/25;
   }
 }

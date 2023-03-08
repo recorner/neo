@@ -16,9 +16,12 @@ export const actions: Actions = {
       data: {
         name: body.get('name') as string,
         description: body.get('description') as string,
-        type: body.get('type') === 'download' ? ProductType.DOWNLOAD : ProductType.LICENSE,
+        type: body.get('type') as ProductType,
         price: Number(body.get('price')),
-        stock: body.get('stock') as string,
+        stock: (body.get('stock') as string)
+          .split('\n')
+          .filter((line) => line.trim() !== '')
+          .join('\n'),
         seller: {
           connect: {
             id: user.id,

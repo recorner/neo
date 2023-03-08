@@ -5,6 +5,7 @@
   import type { PageData } from './$types';
   import { toast } from '@zerodevx/svelte-toast';
   import { invalidateAll } from '$app/navigation';
+  import toastThemes from '$lib/toastThemes';
 
   export let data: PageData;
   let addCategoryInput = '';
@@ -28,11 +29,7 @@
           }).then((res) => {
             if (res.ok) {
               toast.push('Categories updated', {
-                theme: {
-                  '--toastColor': 'mintcream',
-                  '--toastBackground': 'rgba(72,187,120,0.9)',
-                  '--toastBarBackground': '#2F855A',
-                },
+                theme: toastThemes.success,
               });
               invalidateAll();
             }

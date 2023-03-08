@@ -109,6 +109,8 @@ model CartEntry {
   id       Int @id @default(autoincrement())
   quantity Int
 
+  delivered String?
+
   product   Product @relation(fields: [productId], references: [id])
   productId Int
 

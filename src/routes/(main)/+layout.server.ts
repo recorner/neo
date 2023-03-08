@@ -18,6 +18,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
       id: data.id,
     },
     select: {
+      id: true,
       username: true,
       balance: true,
       role: true,
@@ -48,5 +49,6 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
   return {
     user,
     categories,
+    cart: JSON.parse(cookies.get('cart') || '[]') as { id: number; quantity: number }[],
   };
 };

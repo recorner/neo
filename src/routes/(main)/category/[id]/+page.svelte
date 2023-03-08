@@ -48,7 +48,7 @@
                 value={data.page}
                 min={1}
                 max={data.pages}
-                class="bg-neutral-850 rounded-lg px-2 py-1 w-14"
+                class="bg-neutral-850 rounded-lg px-2 py-1 w-14 border border-neutral-700"
                 on:change={(e) => goToPage(Number(e.target.value))}
               />
               <p>of {data.pages}</p>
@@ -68,23 +68,3 @@
     </tr>
   </tfoot>
 </table>
-
-<style>
-  th,
-  td {
-    @apply text-left px-4 py-3;
-  }
-
-  th,
-  tfoot > tr {
-    @apply bg-neutral-800;
-  }
-
-  tr:nth-child(even) {
-    @apply bg-neutral-800/25;
-  }
-
-  .page-btn {
-    @apply rounded-full hover:bg-neutral-700 transition p-1;
-  }
-</style>

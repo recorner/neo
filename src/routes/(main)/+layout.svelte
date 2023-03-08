@@ -1,6 +1,6 @@
 <script lang="ts">
   import Logo from '$lib/logo.svg';
-  import { Box, DollarSign, Home, List, PieChart, Settings, Tool, User } from '@steeze-ui/feather-icons';
+  import { Box, DollarSign, Home, List, PieChart, Settings, ShoppingCart, Tool, User } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import type { LayoutServerData } from './$types';
   import { SvelteToast } from '@zerodevx/svelte-toast';
@@ -74,6 +74,10 @@
 <div class="ml-64">
   <div class="bg-neutral-800/25 p-3 flex items-center justify-end gap-1">
     <a href="/balance" class="link">${data.user.balance.toFixed(2)}</a>
+    <a href="/cart" class="link group-focus-within:bg-neutral-800">
+      <span>{data.cart.reduce((acc, cur) => acc + cur.quantity, 0)}</span>
+      <Icon src={ShoppingCart} class="w-4 h-4" />
+    </a>
     <div class="relative group">
       <button class="link group-focus-within:bg-neutral-800">
         <span>{data.user.username}</span>
