@@ -41,12 +41,13 @@ model Attachment {
 
   // used by
   categories Category[]
-  products   Product[]
 }
 
 model Category {
   id   Int    @id @default(autoincrement())
   name String @unique
+
+  order Int @default(autoincrement())
 
   image        Attachment? @relation(references: [id], fields: [attachmentId])
   attachmentId Int?
@@ -57,7 +58,6 @@ model Category {
 enum ProductType {
   DOWNLOAD
   LICENSE
-  SERVICE
 }
 
 enum ProductTags {
@@ -70,11 +70,10 @@ model Product {
   description String
   price       Float
 
-  type ProductType   @default(SERVICE)
-  tags ProductTags[]
+  stock String @default("")
 
-  image        Attachment @relation(fields: [attachmentId], references: [id])
-  attachmentId Int
+  type ProductType   @default(DOWNLOAD)
+  tags ProductTags[] @default([])
 
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId Int

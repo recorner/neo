@@ -6,9 +6,7 @@
   export let icon: IconSource;
 </script>
 
-<div
-  class="flex gap-2 items-center bg-neutral-800 border border-neutral-700 px-3 py-2 rounded-lg focus-within:border-neutral-600 transition"
->
+<div class="input">
   {#if icon}
     <Icon src={icon} class="w-5 h-5 text-neutral-400" />
   {/if}

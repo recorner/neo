@@ -32,6 +32,12 @@ export const actions: Actions = {
       where: {
         username,
       },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        role: true,
+      },
     });
 
     if (!user || !(await argon.verify(user.password, password))) {
@@ -41,6 +47,7 @@ export const actions: Actions = {
     const token = jwt.sign(
       {
         id: user.id,
+        role: user.role,
         username: user.username,
       },
       process.env.JWT_SECRET || '1',

@@ -34,14 +34,9 @@
   {#if form?.error === 'captcha'}
     <span class="error">Invalid captcha</span>
   {/if}
-  <button
-    type="submit"
-    class="block w-full px-3 py-2 bg-blue-500 rounded-lg text-sm hover:bg-blue-600 transition focus:ring-2 ring-blue-500/50"
-  >
-    Register
-  </button>
+  <button type="submit" class="btn"> Register </button>
   <div class="text-center">
     <span>Already have an account?</span>
-    <a href="/auth/login" class="text-blue-500 hover:text-blue-600">Login</a>
+    <a href="/auth/login" class="text-blue-500 hover:text-blue-600 transition">Login</a>
   </div>
 </form>

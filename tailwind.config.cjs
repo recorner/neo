@@ -1,10 +1,15 @@
 const config = {
-  content: ["./src/**/*.{html,js,svelte,ts}"],
+  content: ['./src/**/*.{html,js,svelte,ts}'],
 
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        neutral: {
+          850: '#1F1F1F',
+        },
+      },
+    },
   },
-
   plugins: [],
 };
 
