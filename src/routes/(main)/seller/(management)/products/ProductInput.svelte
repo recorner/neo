@@ -9,7 +9,7 @@
 
 <div class="grid gap-2">
   <div class="grid md:grid-cols-2 gap-2">
-    <InputWithIcon icon={Type} placeholder="Name" name="name" value={product?.name || ''} />
+    <InputWithIcon icon={Type} placeholder="Name" name="name" value={product?.name || ''} maxlength="60" />
     <InputWithIcon
       icon={DollarSign}
       placeholder="Price"
@@ -31,11 +31,21 @@
   </select>
   <textarea
     class="input"
+    name="shortDesc"
+    cols="30"
+    rows="2"
+    maxlength="100"
+    placeholder="Short description"
+    value={product?.shortDesc || ''}
+  />
+  <textarea
+    class="input"
     name="description"
     cols="30"
     rows="5"
     placeholder="Description (supports markdown)"
     value={product?.description || ''}
+    maxlength="4096"
   />
   <div class="flex items-center">
     <h2 class="font-bold">Stock</h2>

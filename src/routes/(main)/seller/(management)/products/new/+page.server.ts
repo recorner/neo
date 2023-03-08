@@ -12,10 +12,15 @@ export const actions: Actions = {
 
     const body = await request.formData();
 
+    // validate length of fields
+    if (body.get('name')?.length > 60 || body.get('description')?.length > 4096 || body.get('shortDesc')?.length > 100)
+      return fail(400, { error: 'length' });
+
     const product = await prisma.product.create({
       data: {
         name: body.get('name') as string,
         description: body.get('description') as string,
+        shortDesc: body.get('shortDesc') as string,
         type: body.get('type') as ProductType,
         price: Number(body.get('price')),
         stock: (body.get('stock') as string)

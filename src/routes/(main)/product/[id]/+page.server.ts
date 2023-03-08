@@ -2,6 +2,7 @@ import prisma from '$lib/prisma';
 import { ProductTags, ProductType } from '@prisma/client';
 import type { Actions, PageServerLoad } from './$types';
 import { error, fail } from '@sveltejs/kit';
+import { stockCount } from '$lib/util';
 
 export const load: PageServerLoad = async ({ params }) => {
   const product = await prisma.product
@@ -28,7 +29,7 @@ export const load: PageServerLoad = async ({ params }) => {
       product
         ? {
             ...product,
-            stock: product.type == ProductType.DOWNLOAD ? '∞' : product.stock.split('\n').length,
+            stock: product.type == ProductType.DOWNLOAD ? '∞' : stockCount(product.stock),
           }
         : null
     );
@@ -60,7 +61,7 @@ export const actions: Actions = {
         product
           ? {
               ...product,
-              stock: product.type == ProductType.DOWNLOAD ? '∞' : product.stock.split('\n').length,
+              stock: product.type == ProductType.DOWNLOAD ? '∞' : stockCount(product.stock),
             }
           : null
       );

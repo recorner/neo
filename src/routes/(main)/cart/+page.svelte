@@ -10,7 +10,31 @@
   export let data: PageData;
 </script>
 
-<form class="flex gap-4 flex-col md:flex-row" method="post" action="?/checkout">
+<form
+  class="flex gap-4 flex-col md:flex-row"
+  method="post"
+  action="?/checkout"
+  use:enhance={() =>
+    async ({ result }) => {
+      if (result.type == 'failure') {
+        if (result.data.error === 'changed' || result.data.error === 'invalid') {
+          toast.push('Some of the items in your cart are no longer available', {
+            theme: toastThemes.error,
+          });
+          await invalidateAll();
+        } else if (result.data.error === 'insufficient') {
+          toast.push('Insufficient funds', {
+            theme: toastThemes.error,
+          });
+          await invalidateAll();
+        } else {
+          toast.push('An unknown error occurred', {
+            theme: toastThemes.error,
+          });
+        }
+      }
+    }}
+>
   <div class="card w-full h-max">
     <h2 class="font-bold">Cart</h2>
     <p class="text-sm text-neutral-400 mb-2">Review your cart before checking out</p>
@@ -32,7 +56,7 @@
               type="number"
               bind:value={item.quantity}
               min={1}
-              max={typeof item.stock === 'number' ? item.stock : 999}
+              max={typeof item.stock === 'number' ? item.stock : 1}
               class="bg-neutral-850 rounded-lg px-2 py-1 w-16 border border-neutral-700"
             />
             <p>&times;</p>

@@ -8,3 +8,5 @@ export const userFromToken = (token: string) => {
   }
   return data as { id: number; role: string[]; username: string };
 };
+
+export const stockCount = (stock: string) => stock.split('\n').filter((s) => s.trim().length > 0).length;

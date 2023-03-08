@@ -2,6 +2,7 @@ import { ProductTags, ProductType } from '@prisma/client';
 import type { PageServerLoad } from './$types';
 import prisma from '$lib/prisma';
 import { redirect } from '@sveltejs/kit';
+import { stockCount } from '$lib/util';
 
 const PER_PAGE = 3;
 
@@ -28,6 +29,7 @@ export const load: PageServerLoad = async ({ parent, url, params }) => {
           select: {
             id: true,
             name: true,
+            shortDesc: true,
             stock: true,
             type: true,
             price: true,
@@ -44,7 +46,7 @@ export const load: PageServerLoad = async ({ parent, url, params }) => {
       ...category,
       products: category?.products.map((product) => ({
         ...product,
-        stock: product.type == ProductType.DOWNLOAD ? '∞' : product.stock.split('\n').length,
+        stock: product.type == ProductType.DOWNLOAD ? '∞' : stockCount(product.stock),
       })),
     }));
 

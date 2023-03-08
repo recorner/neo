@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { ChevronLeft, ChevronRight } from '@steeze-ui/feather-icons';
+  import { ChevronLeft, ChevronRight, Frown } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import type { PageData } from './$types';
 
@@ -13,33 +13,39 @@
   };
 </script>
 
-<table class="card w-full overflow-hidden">
-  <thead>
-    <th>Name</th>
-    <th>Seller</th>
-    <th>Stock</th>
-    <th>Price</th>
-    <th />
-  </thead>
-  <tbody>
-    {#each data.category?.products as product}
+{#if data.category?.products.length === 0}
+  <div class="flex items-center justify-center flex-col pt-12">
+    <Icon src={Frown} class="w-16 h-16 text-neutral-500 mb-2" />
+    <h1 class="font-bold">No Products</h1>
+    <span class="text-sm mb-2 block text-neutral-300">There are no products here, check back later</span>
+  </div>
+{:else}
+  <table class="card w-full overflow-hidden">
+    <thead>
+      <th>Name</th>
+      <th>Seller</th>
+      <th>Description</th>
+      <th>Stock</th>
+      <th>Price</th>
+      <th />
+    </thead>
+    <tbody>
+      {#each data.category?.products as product}
+        <tr>
+          <td>{product.name}</td>
+          <td>{product.seller.username}</td>
+          <td>{product.shortDesc}</td>
+          <td>{product.stock}</td>
+          <td>${product.price.toFixed(2)}</td>
+          <td class="flex justify-end">
+            <a href="/product/{product.id}" class="btn w-max">View</a>
+          </td>
+        </tr>
+      {/each}
+    </tbody>
+    <tfoot>
       <tr>
-        <td>{product.name}</td>
-        <td>{product.seller.username}</td>
-        <td>{product.stock}</td>
-        <td>${product.price.toFixed(2)}</td>
-        <td class="flex justify-end">
-          <a href="/product/{product.id}" class="btn w-max">View</a>
-        </td>
-      </tr>
-    {/each}
-  </tbody>
-  <tfoot>
-    <tr>
-      <td colspan="5" class="text-center">
-        {#if data.category?.products.length === 0}
-          No products found
-        {:else}
+        <td colspan="6" class="text-center">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
               <p>Page</p>
@@ -63,8 +69,8 @@
               </button>
             </div>
           </div>
-        {/if}
-      </td>
-    </tr>
-  </tfoot>
-</table>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+{/if}

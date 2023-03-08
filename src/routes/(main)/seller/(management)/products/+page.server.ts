@@ -1,6 +1,7 @@
 import prisma from '$lib/prisma';
 import { ProductTags, ProductType } from '@prisma/client';
 import type { PageServerLoad } from './$types';
+import { stockCount } from '$lib/util';
 
 export const load: PageServerLoad = async ({ parent }) => {
   const { user } = await parent();
@@ -33,7 +34,7 @@ export const load: PageServerLoad = async ({ parent }) => {
     .then((products) =>
       products.map((product) => ({
         ...product,
-        stock: product.type == ProductType.DOWNLOAD ? '∞' : product.stock.split('\n').length,
+        stock: product.type == ProductType.DOWNLOAD ? '∞' : stockCount(product.stock),
       }))
     );
 

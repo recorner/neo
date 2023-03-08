@@ -50,39 +50,45 @@
         }
       }}
   >
-    <h3 class="font-semibold">Purchase</h3>
-    <div class="flex flex-col gap-2">
-      <div class="my-6 text-xl font-bold text-center">
-        ${(data.product.price * quantity).toFixed(2)}
-      </div>
-      {#if data.product.stock == '∞' || data.product.stock > 0}
-        {@const max = data.product.stock == '∞' ? 999 : data.product.stock}
-        {@const updateQuantity = (value) => {
-          if (value < 1) quantity = 1;
-          else if (value > max) quantity = max;
-          else quantity = value;
-        }}
-        <div class="flex items-center gap-2 rounded-lg bg-neutral-800 px-3 py-2 border border-neutral-700">
-          <button class="page-btn" on:click={() => updateQuantity(quantity - 1)} type="button">
-            <Icon src={Minus} class="w-5 h-5" />
-          </button>
-
-          <input
-            type="number"
-            name="quantity"
-            class="bg-transparent text-center w-full"
-            bind:value={quantity}
-            {max}
-            min={1}
-          />
-
-          <button class="page-btn" on:click={() => updateQuantity(quantity + 1)} type="button">
-            <Icon src={Plus} class="w-5 h-5" />
-          </button>
+    {#if typeof data.product.stock == 'number' && data.product.stock <= 0}
+      <h3 class="font-semibold text-center">Out of Stock</h3>
+    {:else}
+      <h3 class="font-semibold">Purchase</h3>
+      <div class="flex flex-col gap-2">
+        <div class="my-6 text-xl font-bold text-center">
+          ${(data.product.price * quantity).toFixed(2)}
         </div>
-      {/if}
-      <button class="btn w-full">Add to cart</button>
-      <!-- <button class="btn w-full gray">Buy Now</button> -->
-    </div>
+        {#if data.product.stock == '∞' || data.product.stock > 0}
+          {@const max = data.product.stock == '∞' ? 1 : data.product.stock}
+          {@const updateQuantity = (value) => {
+            if (value < 1) quantity = 1;
+            else if (value > max) quantity = max;
+            else quantity = value;
+          }}
+          {#if max > 1}
+            <div class="flex items-center gap-2 rounded-lg bg-neutral-800 px-3 py-2 border border-neutral-700">
+              <button class="page-btn" on:click={() => updateQuantity(quantity - 1)} type="button">
+                <Icon src={Minus} class="w-5 h-5" />
+              </button>
+
+              <input
+                type="number"
+                name="quantity"
+                class="bg-transparent text-center w-full"
+                bind:value={quantity}
+                {max}
+                min={1}
+              />
+
+              <button class="page-btn" on:click={() => updateQuantity(quantity + 1)} type="button">
+                <Icon src={Plus} class="w-5 h-5" />
+              </button>
+            </div>
+          {/if}
+        {/if}
+        <button class="btn w-full">Add to cart</button>
+        <!-- <button class="btn w-full gray">Buy Now</button> -->
+      </div>
+    {/if}
   </form>
 </div>

@@ -17,7 +17,7 @@
       <Icon src={Home} class="w-4 h-4" />
       <span>Home</span>
     </a>
-    <a href="/" class="link">
+    <a href="/orders" class="link">
       <Icon src={Box} class="w-4 h-4" />
       <span>Orders</span>
     </a>
@@ -84,7 +84,7 @@
         <Icon src={User} class="w-4 h-4" />
       </button>
       <div
-        class="absolute top-10 right-0 w-52 bg-neutral-850 shadow-md rounded-lg px-3 py-2 origin-top-right scale-0 group-focus-within:scale-100 transition opacity-0 group-focus-within:opacity-100"
+        class="absolute z-20 top-10 right-0 w-52 bg-neutral-850 shadow-md rounded-lg px-3 py-2 origin-top-right scale-0 group-focus-within:scale-100 transition opacity-0 group-focus-within:opacity-100"
       >
         <a href="/account" class="link">Settings</a>
         <a href="/auth/logout" class="link">Logout</a>

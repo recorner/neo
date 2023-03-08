@@ -15,6 +15,7 @@ export const load: PageServerLoad = async ({ params, parent }) => {
       id: true,
       name: true,
       description: true,
+      shortDesc: true,
       price: true,
       stock: true,
       type: true,
@@ -46,6 +47,9 @@ export const actions: Actions = {
     if (!user?.id || !user.role.includes(Role.SELLER)) return fail(401, { error: 'unauthorized' });
     const body = await request.formData();
 
+    if (body.get('name')?.length > 60 || body.get('description')?.length > 4096 || body.get('shortDesc')?.length > 100)
+      return fail(400, { error: 'length' });
+
     // verify that we are the seller of this product
     const product = await prisma.product.findUnique({
       where: {
@@ -68,6 +72,7 @@ export const actions: Actions = {
       data: {
         name: body.get('name') as string,
         description: body.get('description') as string,
+        shortDesc: body.get('shortDesc') as string,
         type: body.get('type') as ProductType,
         price: Number(body.get('price')),
         stock: (body.get('stock') as string)

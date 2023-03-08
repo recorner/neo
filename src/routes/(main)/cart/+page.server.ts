@@ -2,7 +2,7 @@ import prisma from '$lib/prisma';
 import { OrderStatus, ProductTags, ProductType } from '@prisma/client';
 import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
-import { userFromToken } from '$lib/util';
+import { stockCount, userFromToken } from '$lib/util';
 
 export const load: PageServerLoad = async ({ parent, cookies }) => {
   let { cart } = await parent();
@@ -28,10 +28,12 @@ export const load: PageServerLoad = async ({ parent, cookies }) => {
       },
     })
     .then((products) =>
-      products.map((product) => ({
-        ...product,
-        stock: product.type == ProductType.DOWNLOAD ? '∞' : product.stock.split('\n').length,
-      }))
+      products
+        .map((product) => ({
+          ...product,
+          stock: product.type == ProductType.DOWNLOAD ? '∞' : stockCount(product.stock),
+        }))
+        .filter((product) => typeof product.stock == 'string' || product.stock > 0)
     );
 
   return {
@@ -89,15 +91,18 @@ export const actions: Actions = {
       },
     });
 
-    const validCart = cart.filter((item) => {
+    const validCart = cart.map((item) => {
       const product = products.find((product) => product.id == item.id);
-      if (!product) return false;
-      if (product.type == ProductType.DOWNLOAD) return true;
-      if (product.stock.split('\n').length < item.quantity) return false;
-      return true;
+      if (!product) return null;
+      if (product.type != ProductType.DOWNLOAD && stockCount(product.stock) < item.quantity)
+        return { ...item, quantity: stockCount(product.stock) };
+      return item;
     });
 
+    const cartChanged = validCart.some((item) => item?.quantity != item?.quantity);
+
     cookies.set('cart', JSON.stringify(validCart), { path: '/' });
+    if (cartChanged) return fail(400, { error: 'changed' });
     if (validCart.length == 0) return fail(400, { error: 'empty' });
     if (validCart.length != cart.length) return fail(400, { error: 'invalid' });
 
