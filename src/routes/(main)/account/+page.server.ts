@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 export const actions: Actions = {
   async updatePassword({ request, cookies }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user) return fail(401, { error: 'unauthorized' });
 
     const body = await request.formData();
@@ -65,7 +65,7 @@ export const actions: Actions = {
     return { success: true };
   },
   async disable2FA({ cookies }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user) return fail(401, { error: 'unauthorized' });
 
     await prisma.user.update({
@@ -80,7 +80,7 @@ export const actions: Actions = {
     return { success: true };
   },
   async enable2FA({ cookies, request }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user) return fail(401, { error: 'unauthorized' });
 
     const body = await request.formData();

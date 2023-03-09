@@ -28,7 +28,11 @@
     </div>
     {#each data.categories as category}
       <a href={`/category/${category.id}`} class="link">
-        <Icon src={Home} class="w-4 h-4" />
+        {#if category.image}
+        <img src="{category.image}" alt="" class="w-4 h-4" />
+        {:else}
+        <Icon src={ShoppingCart} class="w-4 h-4" />
+        {/if}
         <span>{category.name}</span>
       </a>
     {:else}

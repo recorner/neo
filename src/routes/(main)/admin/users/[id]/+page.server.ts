@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 export const actions: Actions = {
   async updatePassword({ params, request, cookies }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user || !user.role.includes(Role.ADMIN)) throw fail(401, { error: 'unauthorized' });
 
     const body = await request.formData();
@@ -68,7 +68,7 @@ export const actions: Actions = {
     return { success: true };
   },
   async updateRoles({ params, request, cookies }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user || !user.role.includes(Role.ADMIN)) throw fail(401, { error: 'unauthorized' });
 
     const body = await request.formData();

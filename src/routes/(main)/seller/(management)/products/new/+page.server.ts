@@ -6,7 +6,7 @@ import prisma from '$lib/prisma';
 
 export const actions: Actions = {
   async publish({ request, cookies }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     console.log(user);
     if (!user?.id || !user.role.includes(Role.SELLER)) return fail(401, { error: 'unauthorized' });
 

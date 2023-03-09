@@ -17,7 +17,7 @@ export const load: PageServerLoad = async () => {
 
 export const actions: Actions = {
   async update({ request, cookies }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user || !user.role.includes(Role.ADMIN)) throw fail(401, { error: 'unauthorized' });
 
     const body = await request.formData();

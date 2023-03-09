@@ -7,9 +7,9 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
   // validate jwt
   let data: any;
   try {
-    data = jwt.verify(cookies.get('token'), process.env.JWT_SECRET || '1');
+    data = jwt.verify(cookies.get('__token'), process.env.JWT_SECRET || '1');
   } catch (e) {
-    cookies.delete('token', { path: '/' });
+    cookies.delete('__token', { path: '/' });
     throw redirect(302, '/auth/login');
   }
 
@@ -26,7 +26,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
   });
 
   if (!user) {
-    cookies.delete('token', { path: '/' });
+    cookies.delete('__token', { path: '/' });
     throw redirect(302, '/auth/login');
   }
 
@@ -37,14 +37,16 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
         id: true,
         name: true,
         order: true,
-        image: {
-          select: {
-            filename: true,
-          },
-        },
+        image: true,
       },
     })
-    .then((categories) => categories.sort((a, b) => a.order - b.order));
+    .then((categories) => categories.sort((a, b) => a.order - b.order))
+    .then((categories) =>
+      categories.map((category) => ({
+        ...category,
+        image: category.image ? `${process.env.UPLOAD_PREFIX}/${category.image}` : null,
+      }))
+    );
 
   return {
     user,

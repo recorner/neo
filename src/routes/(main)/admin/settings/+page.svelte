@@ -15,7 +15,7 @@
   let categories = data.categories;
 </script>
 
-<div class="grid grid-cols-2 gap-4">
+<div class="grid md:grid-cols-2 gap-4">
   <div class="card h-max">
     <div class="flex items-center justify-between mb-2">
       <h2 class="font-bold">Categories</h2>
@@ -36,8 +36,10 @@
               invalidateAll();
             }
           });
-        }}>Save</button
+        }}
       >
+        Save
+      </button>
     </div>
     {#if categories.length === 0}
       <p class="text-neutral-300 text-sm my-5">No categories</p>
@@ -65,10 +67,30 @@
             }}
           />
           <div class="flex gap-2">
-            <button class="hover:text-blue-400 transition">
-              <!-- TODO -->
+            <label class="hover:text-blue-400 transition">
+              <input
+                type="file"
+                name="image"
+                class="hidden"
+                on:change={(e) => {
+                  const formData = new FormData();
+                  formData.append('id', item.id);
+                  formData.append('image', e.target.files[0]);
+                  fetch('/admin/settings/updateCategory', {
+                    method: 'POST',
+                    body: formData,
+                  }).then((res) => {
+                    if (res.ok) {
+                      toast.push('Category image updated', {
+                        theme: toastThemes.success,
+                      });
+                      invalidateAll();
+                    }
+                  });
+                }}
+              />
               <Icon src={Image} class="w-5 h-5" />
-            </button>
+            </label>
             <button
               class="hover:text-red-400 transition"
               on:click={() => {

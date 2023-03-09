@@ -5,7 +5,7 @@ import { userFromToken } from '$lib/util';
 
 export const actions: Actions = {
   async topUp({ request, cookies, url }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user?.id) return fail(401, { error: 'auth' });
 
     const body = await request.formData();
@@ -46,7 +46,7 @@ export const actions: Actions = {
     throw redirect(302, payment.invoice_url);
   },
   async transfer({ request, cookies }) {
-    const user = userFromToken(cookies.get('token'));
+    const user = userFromToken(cookies.get('__token'));
     if (!user?.id) return fail(401, { error: 'auth' });
 
     const body = await request.formData();

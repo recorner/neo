@@ -56,7 +56,7 @@ export const actions: Actions = {
       }
     );
 
-    cookies.set('token', token, {
+    cookies.set('__token', token, {
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 2,
       httpOnly: true,

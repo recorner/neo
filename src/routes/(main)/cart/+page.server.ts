@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({ parent, cookies }) => {
 
 export const actions: Actions = {
   async checkout({ request, cookies }) {
-    let user = userFromToken(cookies.get('token')) as any;
+    let user = userFromToken(cookies.get('__token')) as any;
     if (!user) return fail(401);
 
     user = await prisma.user.findUnique({

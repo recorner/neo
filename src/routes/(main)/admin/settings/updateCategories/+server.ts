@@ -2,10 +2,11 @@ import { userFromToken } from '$lib/util';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import prisma from '$lib/prisma';
+import { Role } from '@prisma/client';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-  const user = userFromToken(cookies.get('token'));
-  if (!user?.id) return json({ error: 'auth' }, { status: 401 });
+  const user = userFromToken(cookies.get('__token'));
+  if (!user?.id || !user.role.includes(Role.ADMIN)) return json({ error: 'auth' }, { status: 401 });
 
   const body = await request.json();
   const current = await prisma.category.findMany({

@@ -10,7 +10,7 @@
   export let data: PageData;
 </script>
 
-<div class="grid grid-cols-2 gap-4">
+<div class="grid md:grid-cols-2 gap-4">
   <form class="card h-max" method="post" action="?/topUp">
     <h2 class="font-bold">Top-Up</h2>
     <span class="text-sm mb-2 block text-neutral-300">Top up your balance with over 160 different cryptocurrencies</span
