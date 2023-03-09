@@ -84,6 +84,8 @@
                 <Icon src={Plus} class="w-5 h-5" />
               </button>
             </div>
+          {:else}
+            <input type="hidden" name="quantity" value={1} />
           {/if}
         {/if}
         <button class="btn w-full">Add to cart</button>

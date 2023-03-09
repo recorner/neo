@@ -79,7 +79,7 @@ export const actions: Actions = {
     else
       cart[index].quantity = Math.min(
         cart[index].quantity + quantity,
-        typeof product.stock == 'number' ? product.stock : Infinity
+        typeof product.stock == 'number' ? product.stock : 1
       );
 
     // check if quantity did not change

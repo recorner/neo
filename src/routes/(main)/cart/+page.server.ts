@@ -112,6 +112,17 @@ export const actions: Actions = {
       return total + product.price * item.quantity;
     }, 0);
 
+    // paranoid check
+    user = await prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      select: {
+        id: true,
+        balance: true,
+      },
+    });
+
     if (user.balance < total) return fail(400, { error: 'insufficient' });
 
     // create order
@@ -125,6 +136,18 @@ export const actions: Actions = {
         },
       },
     });
+
+    const fee = await prisma.settings
+      .findUnique({
+        where: {
+          key: 'fee',
+        },
+        select: {
+          value: true,
+        },
+      })
+      .then((data) => data?.value ?? 0)
+      .then((data) => 1 - parseFloat(data || '0') / 100);
 
     const order = await prisma.order.create({
       data: {
@@ -148,8 +171,7 @@ export const actions: Actions = {
                   },
                   data: {
                     balance: {
-                      // TODO: add commission
-                      increment: product.price * item.quantity,
+                      increment: product.price * item.quantity * fee,
                     },
                   },
                 });

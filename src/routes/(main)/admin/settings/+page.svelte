@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { Image, Trash } from '@steeze-ui/feather-icons';
+  import { Image, Percent, Trash } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import SortableList from '$lib/components/SortableList.svelte';
   import type { PageData } from './$types';
   import { toast } from '@zerodevx/svelte-toast';
   import { invalidateAll } from '$app/navigation';
   import toastThemes from '$lib/toastThemes';
+  import InputWithIcon from '$lib/components/InputWithIcon.svelte';
+  import { enhance } from '$app/forms';
 
   export let data: PageData;
   let addCategoryInput = '';
@@ -14,7 +16,7 @@
 </script>
 
 <div class="grid grid-cols-2 gap-4">
-  <div class="card">
+  <div class="card h-max">
     <div class="flex items-center justify-between mb-2">
       <h2 class="font-bold">Categories</h2>
       <button
@@ -102,4 +104,37 @@
       <button class="btn w-max rounded-l-none border-blue-500 border border-l-0">Add</button>
     </form>
   </div>
+  <form
+    class="card h-max"
+    method="post"
+    action="?/update"
+    use:enhance={({ form }) =>
+      async ({ result }) => {
+        if (result.type === 'success') {
+          toast.push('Settings updated', {
+            theme: toastThemes.success,
+          });
+          return;
+        } else {
+          toast.push('Error updating settings', {
+            theme: toastThemes.error,
+          });
+        }
+        await invalidateAll();
+      }}
+  >
+    <h2 class="font-bold mb-2">Settings</h2>
+    <div class="space-y-2">
+      <InputWithIcon
+        icon={Percent}
+        placeholder="Platform fee"
+        type="number"
+        min="1"
+        max="99"
+        name="fee"
+        value={data.settings['fee']}
+      />
+      <button class="btn">Save</button>
+    </div>
+  </form>
 </div>
