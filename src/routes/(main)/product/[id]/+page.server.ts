@@ -20,6 +20,7 @@ export const load: PageServerLoad = async ({ params }) => {
         tags: true,
         seller: {
           select: {
+            id: true,
             username: true,
           },
         },

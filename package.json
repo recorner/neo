@@ -40,6 +40,8 @@
     "classnames": "^2.3.2",
     "jsonwebtoken": "^9.0.0",
     "marked": "^4.2.12",
+    "node-2fa": "^2.0.3",
+    "qrcode": "^1.5.1",
     "svelte-chartjs": "^3.1.2"
   }
 }

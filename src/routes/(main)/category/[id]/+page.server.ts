@@ -4,7 +4,7 @@ import prisma from '$lib/prisma';
 import { redirect } from '@sveltejs/kit';
 import { stockCount } from '$lib/util';
 
-const PER_PAGE = 3;
+const PER_PAGE = 10;
 
 export const load: PageServerLoad = async ({ parent, url, params }) => {
   const page = Number(url.searchParams.get('page')) || 1;
@@ -35,6 +35,7 @@ export const load: PageServerLoad = async ({ parent, url, params }) => {
             price: true,
             seller: {
               select: {
+                id: true,
                 username: true,
               },
             },

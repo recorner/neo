@@ -21,6 +21,9 @@ model User {
   password String
   balance  Float  @default(0)
 
+  twoFactorSecret String?
+  telegram        String?
+
   createdAt DateTime @default(now())
   role      Role[]
 

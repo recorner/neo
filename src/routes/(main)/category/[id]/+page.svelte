@@ -13,7 +13,7 @@
   };
 </script>
 
-{#if data.category?.products.length === 0}
+{#if data.category?.products?.length === 0}
   <div class="flex items-center justify-center flex-col pt-12">
     <Icon src={Frown} class="w-16 h-16 text-neutral-500 mb-2" />
     <h1 class="font-bold">No Products</h1>
@@ -30,18 +30,24 @@
       <th />
     </thead>
     <tbody>
-      {#each data.category?.products as product}
-        <tr>
-          <td>{product.name}</td>
-          <td>{product.seller.username}</td>
-          <td>{product.shortDesc}</td>
-          <td>{product.stock}</td>
-          <td>${product.price.toFixed(2)}</td>
-          <td class="flex justify-end">
-            <a href="/product/{product.id}" class="btn w-max">View</a>
-          </td>
-        </tr>
-      {/each}
+      {#if data.category.products}
+        {#each data.category.products as product}
+          <tr>
+            <td>{product.name}</td>
+            <td>
+              <a href={`/seller/${product.seller.id}`} class="hover:underline">
+                {product.seller.username}
+              </a>
+            </td>
+            <td>{product.shortDesc}</td>
+            <td>{product.stock}</td>
+            <td>${product.price.toFixed(2)}</td>
+            <td class="flex justify-end">
+              <a href="/product/{product.id}" class="btn w-max">View</a>
+            </td>
+          </tr>
+        {/each}
+      {/if}
     </tbody>
     <tfoot>
       <tr>

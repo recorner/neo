@@ -15,7 +15,10 @@
 <div class="flex gap-4 flex-col-reverse md:flex-row">
   <div class="card w-full h-max">
     <h2 class="font-semibold text-2xl">{data.product.name}</h2>
-    <p class="text-neutral-300 mb-3">Sold by {data.product.seller.username}</p>
+    <p class="text-neutral-300 mb-3">
+      Sold by
+      <a href="/seller/{data.product.seller.id}" class="hover:underline text-white">{data.product.seller.username}</a>
+    </p>
     <div class="prose prose-invert">
       {@html marked.parse(data.product.description)}
     </div>

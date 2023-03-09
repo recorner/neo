@@ -91,13 +91,15 @@ export const actions: Actions = {
       },
     });
 
-    const validCart = cart.map((item) => {
-      const product = products.find((product) => product.id == item.id);
-      if (!product) return null;
-      if (product.type != ProductType.DOWNLOAD && stockCount(product.stock) < item.quantity)
-        return { ...item, quantity: stockCount(product.stock) };
-      return item;
-    });
+    const validCart = cart
+      .map((item) => {
+        const product = products.find((product) => product.id == item.id);
+        if (!product) return null;
+        if (product.type != ProductType.DOWNLOAD && stockCount(product.stock) < item.quantity)
+          return { ...item, quantity: stockCount(product.stock) };
+        return item;
+      })
+      .filter((item) => item?.quantity && item.quantity > 0);
 
     const cartChanged = validCart.some((item) => item?.quantity != item?.quantity);
 
@@ -204,6 +206,9 @@ export const actions: Actions = {
         },
       },
     });
+
+    // clear cart
+    cookies.set('cart', JSON.stringify([]), { path: '/' });
 
     throw redirect(302, '/orders#order-' + order.id);
   },
