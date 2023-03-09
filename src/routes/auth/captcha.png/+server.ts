@@ -13,8 +13,14 @@ const randomColor = () =>
   ')';
 const fonts = ['Impact', 'Comic Sans MS', 'Arial Black'];
 
+const randomString = (length: number, chars: string) => {
+  let result = '';
+  for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+  return result;
+};
+
 export const GET: RequestHandler = async ({ cookies, url }) => {
-  let code = crypto.randomBytes(3).toString('hex');
+  let code = randomString(6, '0123456789');
   // randomly capitalize letters
   for (let i = 0; i < code.length; i++) {
     if (Math.random() > 0.5) {
@@ -53,47 +59,52 @@ export const GET: RequestHandler = async ({ cookies, url }) => {
   ctx.fillStyle = 'rgba(0, 0, 0, 0)'; // Set the fill color to transparent
   ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill the canvas with the transparent color
 
-  // draw random lines
-  for (let i = 0; i < Math.random() * 5 + 10; i++) {
-    // random color
+  for (let i = 0; i < Math.random() * 20 + 20; i++) {
+    ctx.rotate(Math.random() * 0.4 - 0.2);
     ctx.strokeStyle = randomColor();
     ctx.lineWidth = Math.random() * 3 + 1;
     ctx.beginPath();
-    ctx.moveTo(Math.random() * 200, Math.random() * 80);
-    ctx.lineTo(Math.random() * 200, Math.random() * 80);
+    ctx.arc(Math.random() * 200, Math.random() * 80, Math.random() * 30, 0, Math.random() * 2 * Math.PI);
     ctx.stroke();
+    ctx.resetTransform();
   }
 
-  ctx.font = Math.random() * 5 + 45 + 'px ' + fonts[Math.floor(Math.random() * fonts.length)];
-  ctx.rotate(Math.random() * 0.1 - 0.05);
-  ctx.fillStyle =
-    'hsl(' + Math.random() * 360 + ', ' + (Math.random() * 10 + 45) + '%, ' + (Math.random() * 10 + 45) + '%)';
-  ctx.fillText(code, Math.random() * 10, Math.random() * 20 + 50);
+  let x = Math.random() * 10 + 10;
+  const codeData = code.split('').map((c, i) => {
+    const sizeAndFont = Math.random() * 5 + 45 + 'px ' + fonts[Math.floor(Math.random() * fonts.length)];
+    // calculate the width of the letter
+    ctx.font = sizeAndFont;
+    const size = ctx.measureText(c);
+    const position = {
+      x: x,
+      y: Math.random() * 20 + 50,
+    };
+    x += size.width;
 
-  // draw 2 lines that go through the entire image
+    return {
+      letter: c,
+      sizeAndFont,
+      size,
+      position,
+      rotation: Math.random() * 0.4 - 0.2,
+    };
+  });
+
+  // draw the letters
+  codeData.forEach((c) => {
+    ctx.font = c.sizeAndFont;
+    ctx.rotate(c.rotation);
+    ctx.fillStyle = `hsl(${Math.random() * 360}, ${Math.random() * 10 + 80}%, ${Math.random() * 10 + 80}%)`;
+    ctx.fillText(c.letter, c.position.x, c.position.y);
+    ctx.resetTransform();
+  });
+
   for (let i = 0; i < 2; i++) {
     ctx.strokeStyle = randomColor();
     ctx.lineWidth = Math.random() * 3 + 2;
     ctx.beginPath();
     ctx.moveTo(0, Math.random() * 80);
     ctx.lineTo(200, Math.random() * 80);
-    ctx.stroke();
-  }
-
-  // create a bunch of other random letters
-  for (let i = 0; i < Math.random() * 10 + 20; i++) {
-    ctx.font = Math.random() * 20 + 20 + 'px ' + fonts[Math.floor(Math.random() * fonts.length)];
-    ctx.rotate(Math.random() * 0.4 - 0.2);
-    ctx.fillStyle = randomColor().replace('rgb', 'rgba').replace(')', ', 0.1)');
-    ctx.fillText(crypto.randomBytes(1).toString('hex'), Math.random() * 200, Math.random() * 50 + 30);
-  }
-
-  // draw random circles
-  for (let i = 0; i < Math.random() * 20 + 20; i++) {
-    ctx.strokeStyle = randomColor();
-    ctx.lineWidth = Math.random() * 3 + 1;
-    ctx.beginPath();
-    ctx.arc(Math.random() * 200, Math.random() * 80, Math.random() * 10, 0, Math.random() * 2 * Math.PI);
     ctx.stroke();
   }
 

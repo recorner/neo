@@ -1,10 +1,23 @@
 <script lang="ts">
   import InputWithIcon from '$lib/components/InputWithIcon.svelte';
-  import { DollarSign, HelpCircle, Type } from '@steeze-ui/feather-icons';
+  import toastThemes from '$lib/toastThemes';
+  import { Bold, DollarSign, HelpCircle, Image, Italic, Type, Underline } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
+  import { toast } from '@zerodevx/svelte-toast';
 
   export let categories: any;
   export let product: any = null;
+  let textarea: HTMLTextAreaElement;
+
+  const wrapSelection = (textarea: HTMLTextAreaElement, prefix: string, suffix: string) => {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    textarea.value = text.substring(0, start) + prefix + text.substring(start, end) + suffix + text.substring(end);
+    textarea.selectionStart = textarea.selectionEnd =
+      end + (end == start ? prefix.length : prefix.length + suffix.length);
+    textarea.focus();
+  };
 </script>
 
 <div class="grid gap-2">
@@ -38,15 +51,58 @@
     placeholder="Short description"
     value={product?.shortDesc || ''}
   />
-  <textarea
-    class="input"
-    name="description"
-    cols="30"
-    rows="5"
-    placeholder="Description (supports markdown)"
-    value={product?.description || ''}
-    maxlength="4096"
-  />
+  <div>
+    <div class="flex rounded-t-lg p-2 border border-neutral-700 bg-neutral-850 gap-1">
+      <button class="page-btn" type="button" on:click={() => wrapSelection(textarea, '**', '**')}>
+        <Icon src={Bold} class="w-5 h-5 text-neutral-400" />
+      </button>
+      <button class="page-btn" type="button" on:click={() => wrapSelection(textarea, '*', '*')}>
+        <Icon src={Italic} class="w-5 h-5 text-neutral-400" />
+      </button>
+      <button class="page-btn" type="button" on:click={() => wrapSelection(textarea, '__', '__')}>
+        <Icon src={Underline} class="w-5 h-5 text-neutral-400" />
+      </button>
+      <label class="page-btn cursor-pointer">
+        <Icon src={Image} class="w-5 h-5 text-neutral-400" />
+        <input
+          type="file"
+          name="image"
+          class="hidden"
+          on:change={(e) => {
+            const formData = new FormData();
+            formData.append('file', e.target.files[0]);
+            fetch('/seller/products/image', {
+              method: 'POST',
+              body: formData,
+            })
+              .then((res) => res.json())
+              .then((res) => {
+                if (res.image) {
+                  wrapSelection(textarea, `![`, `](${res.image})`);
+                }
+
+                e.target.value = '';
+              })
+              .catch((err) => {
+                toast.push(err, {
+                  theme: toastThemes.error,
+                });
+              });
+          }}
+        />
+      </label>
+    </div>
+    <textarea
+      bind:this={textarea}
+      class="input rounded-t-none border-t-0 w-full"
+      name="description"
+      cols="30"
+      rows="5"
+      placeholder="Description"
+      value={product?.description || ''}
+      maxlength="4096"
+    />
+  </div>
   <div class="flex items-center">
     <h2 class="font-bold">Stock</h2>
     <div class="group relative">

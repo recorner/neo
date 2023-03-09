@@ -126,37 +126,65 @@
       <button class="btn w-max rounded-l-none border-blue-500 border border-l-0">Add</button>
     </form>
   </div>
-  <form
-    class="card h-max"
-    method="post"
-    action="?/update"
-    use:enhance={({ form }) =>
-      async ({ result }) => {
-        if (result.type === 'success') {
-          toast.push('Settings updated', {
-            theme: toastThemes.success,
-          });
-          return;
-        } else {
-          toast.push('Error updating settings', {
-            theme: toastThemes.error,
-          });
-        }
-        await invalidateAll();
-      }}
-  >
-    <h2 class="font-bold mb-2">Settings</h2>
-    <div class="space-y-2">
-      <InputWithIcon
-        icon={Percent}
-        placeholder="Platform fee"
-        type="number"
-        min="1"
-        max="99"
-        name="fee"
-        value={data.settings['fee']}
-      />
-      <button class="btn">Save</button>
-    </div>
-  </form>
+  <div class="grid gap-4 h-max">
+    <form
+      class="card h-max"
+      method="post"
+      action="?/update"
+      use:enhance={({ form }) =>
+        async ({ result }) => {
+          if (result.type === 'success') {
+            toast.push('Settings updated', {
+              theme: toastThemes.success,
+            });
+            return;
+          } else {
+            toast.push('Error updating settings', {
+              theme: toastThemes.error,
+            });
+          }
+          await invalidateAll();
+        }}
+    >
+      <h2 class="font-bold mb-2">Settings</h2>
+      <div class="space-y-2">
+        <InputWithIcon
+          icon={Percent}
+          placeholder="Platform fee"
+          type="number"
+          min="1"
+          max="99"
+          name="fee"
+          value={data.settings['fee']}
+        />
+        <button class="btn">Save</button>
+      </div>
+    </form>
+    <form
+      action="?/announce"
+      method="post"
+      class="card h-max"
+      use:enhance={({ form }) =>
+        async ({ result }) => {
+          if (result.type === 'success') {
+            toast.push('Announcement posted', {
+              theme: toastThemes.success,
+            });
+            form.reset();
+            return;
+          } else {
+            toast.push('Error posting announcement', {
+              theme: toastThemes.error,
+            });
+          }
+        }}
+    >
+      <h2 class="font-bold">Announce</h2>
+      <p class="text-sm text-neutral-300">Post an announcement visible to all members</p>
+      <div class="space-y-2">
+        <textarea class="input w-full mt-2" placeholder="Announcement" name="message" />
+        <button class="btn">Post</button>
+      </div>
+    </form>
+  </div>
 </div>

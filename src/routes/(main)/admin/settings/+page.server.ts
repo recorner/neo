@@ -42,4 +42,23 @@ export const actions: Actions = {
 
     return { success: true };
   },
+  async announce({ request, cookies }) {
+    const user = userFromToken(cookies.get('__token'));
+    if (!user || !user.role.includes(Role.ADMIN)) throw fail(401, { error: 'unauthorized' });
+
+    const body = await request.formData();
+
+    await prisma.announcement.create({
+      data: {
+        message: body.get('message'),
+        poster: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+    });
+
+    return { success: true };
+  },
 };

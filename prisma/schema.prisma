@@ -29,9 +29,10 @@ model User {
 
   products Product[]
 
-  topUps  TopUp[]
-  orders  Order[]
-  payouts Payout[]
+  topUps        TopUp[]
+  orders        Order[]
+  payouts       Payout[]
+  announcements Announcement[]
 }
 
 model Category {
@@ -147,4 +148,14 @@ model Settings {
   id    Int    @id @default(autoincrement())
   key   String @unique
   value String
+}
+
+model Announcement {
+  id    Int    @id @default(autoincrement())
+  title String
+  body  String
+
+  createdAt DateTime @default(now())
+  poster    User     @relation(fields: [userId], references: [id])
+  userId    Int
 }

@@ -27,7 +27,7 @@
   export let data: PageData;
 </script>
 
-<div class="grid grid-cols-2 gap-4">
+<div class="grid md:grid-cols-2 gap-4">
   <div class="card h-max">
     <h2 class="font-bold">Request a Payout</h2>
     <p class="text-neutral-300 mb-2 text-sm">Enter an XMR address below to request a payout</p>
@@ -103,7 +103,7 @@
 
 <h2 class="my-5 text-xl font-bold">Analytics</h2>
 
-<div class="grid grid-cols-2 gap-4">
+<div class="grid md:grid-cols-2 gap-4">
   <div class="card h-max">
     <h2 class="font-bold">Top Products</h2>
     <p class="text-neutral-300 mb-2 text-sm">Your best selling products in the past 7 days</p>

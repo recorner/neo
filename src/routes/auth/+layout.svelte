@@ -2,7 +2,7 @@
   import Logo from '$lib/logo.svg';
 </script>
 
-<div class="grid grid-cols-[35rem_auto] h-screen">
+<div class="grid lg:grid-cols-[35rem_auto] h-screen">
   <div class="p-6 flex flex-col justify-center max-w-md mx-auto w-full">
     <div class="flex items-center gap-3 mb-6">
       <img src={Logo} alt="Logo" class="w-6 h-6" />
@@ -10,5 +10,5 @@
     </div>
     <slot />
   </div>
-  <img src="https://picsum.photos/1920/1080" alt="" class="object-cover h-full" />
+  <img src="https://picsum.photos/1920/1080" alt="" class="object-cover h-full hidden lg:block" />
 </div>

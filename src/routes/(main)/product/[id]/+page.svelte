@@ -3,13 +3,27 @@
   import { Minus, Plus } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { toast } from '@zerodevx/svelte-toast';
-  import { marked } from 'marked';
+  import { marked, Renderer } from 'marked';
   import type { PageData } from './$types';
   import toastThemes from '$lib/toastThemes';
   import { invalidate, invalidateAll } from '$app/navigation';
 
   export let data: PageData;
   let quantity = 1;
+
+  marked.use({
+    renderer: {
+      // image(string href, string title, string text)
+      image: (href, title, text) => {
+        if (!href) return '';
+
+        const url = new URL(href);
+        if (!href.includes('://') || url.origin === 'http://localhost:9000') {
+          return `<img src="${href}" alt="${text || ''}" title="${title || ''}" />`;
+        }
+      },
+    },
+  });
 </script>
 
 <div class="flex gap-4 flex-col-reverse md:flex-row">
@@ -20,7 +34,7 @@
       <a href="/seller/{data.product.seller.id}" class="hover:underline text-white">{data.product.seller.username}</a>
     </p>
     <div class="prose prose-invert">
-      {@html marked.parse(data.product.description)}
+      {@html marked.parse(data.product.description, {})}
     </div>
   </div>
   <form
