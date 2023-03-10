@@ -25,7 +25,12 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
     },
   });
 
-  if (!user) {
+  const compareArray = (a: any[], b: any[]) => {
+    if (a.length !== b.length) return false;
+    return a.every((item) => b.includes(item)) && b.every((item) => a.includes(item));
+  };
+
+  if (!user || !data || !compareArray(user.role, data.role)) {
     cookies.delete('__token', { path: '/' });
     throw redirect(302, '/auth/login');
   }

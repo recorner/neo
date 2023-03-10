@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Image, Percent, Trash } from '@steeze-ui/feather-icons';
+  import { Image, Percent, Trash, Type } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import SortableList from '$lib/components/SortableList.svelte';
   import type { PageData } from './$types';
@@ -28,12 +28,12 @@
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(categories),
-          }).then((res) => {
+          }).then(async (res) => {
             if (res.ok) {
               toast.push('Categories updated', {
                 theme: toastThemes.success,
               });
-              invalidateAll();
+              await invalidateAll();
             }
           });
         }}
@@ -180,9 +180,10 @@
         }}
     >
       <h2 class="font-bold">Announce</h2>
-      <p class="text-sm text-neutral-300">Post an announcement visible to all members</p>
+      <p class="text-sm text-neutral-300 mb-2">Post an announcement visible to all members</p>
       <div class="space-y-2">
-        <textarea class="input w-full mt-2" placeholder="Announcement" name="message" />
+        <InputWithIcon icon={Type} placeholder="Title" name="title" />
+        <textarea class="input w-full" placeholder="Announcement" name="message" />
         <button class="btn">Post</button>
       </div>
     </form>

@@ -17,8 +17,7 @@
       image: (href, title, text) => {
         if (!href) return '';
 
-        const url = new URL(href);
-        if (!href.includes('://') || url.origin === 'http://localhost:9000') {
+        if (!href.includes('://') || new URL(href).origin === 'http://localhost:9000') {
           return `<img src="${href}" alt="${text || ''}" title="${title || ''}" />`;
         }
       },

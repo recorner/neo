@@ -24,7 +24,7 @@
 
   $: browser && localStorage.setItem('mobileMenu', JSON.stringify(mobileMenu));
   onMount(() => {
-    mobileMenu = JSON.parse(localStorage.getItem('mobileMenu') || 'false');
+    mobileMenu = window.innerHeight < 768 && JSON.parse(localStorage.getItem('mobileMenu') || 'false');
   });
 </script>
 
@@ -94,10 +94,10 @@
         <span>Administration</span>
         <hr />
       </div>
-      <a href="/admin/analytics" class="link">
+      <!-- <a href="/admin/analytics" class="link">
         <Icon src={PieChart} class="icon" />
         <span>Analytics</span>
-      </a>
+      </a> -->
       <a href="/admin/users" class="link">
         <Icon src={User} class="icon" />
         <span>Users</span>

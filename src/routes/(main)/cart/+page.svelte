@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
-  import { invalidateAll } from '$app/navigation';
+  import { applyAction, enhance } from '$app/forms';
+  import { goto, invalidateAll } from '$app/navigation';
   import toastThemes from '$lib/toastThemes';
   import { AlertTriangle, ShoppingCart, Trash } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
@@ -39,6 +39,12 @@
               theme: toastThemes.error,
             });
           }
+        } else if (result.type === 'success') {
+          await invalidateAll();
+          toast.push('Successfully checked out', {
+            theme: toastThemes.success,
+          });
+          goto('/orders');
         }
       }}
   >

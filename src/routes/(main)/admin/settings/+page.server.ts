@@ -50,7 +50,8 @@ export const actions: Actions = {
 
     await prisma.announcement.create({
       data: {
-        message: body.get('message'),
+        title: body.get('title') as string,
+        body: body.get('message') as string,
         poster: {
           connect: {
             id: user.id,

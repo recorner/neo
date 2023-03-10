@@ -210,6 +210,6 @@ export const actions: Actions = {
     // clear cart
     cookies.set('cart', JSON.stringify([]), { path: '/' });
 
-    throw redirect(302, '/orders#order-' + order.id);
+    return { success: true };
   },
 };
