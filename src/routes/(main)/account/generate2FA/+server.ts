@@ -7,9 +7,8 @@ export const GET: RequestHandler = async ({ cookies }) => {
   const user = userFromToken(cookies.get('__token'));
   if (!user) throw error(401, 'Unauthorized');
 
-  // TODO: update name
   const { secret, uri } = twofactor.generateSecret({
-    name: 'Test',
+    name: 'Untouchable',
     account: user?.username,
   });
 

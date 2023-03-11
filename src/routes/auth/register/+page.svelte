@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { applyAction, enhance } from '$app/forms';
   import CaptchaInput from '$lib/components/CaptchaInput.svelte';
   import InputWithIcon from '$lib/components/InputWithIcon.svelte';
   import Logo from '$lib/logo.svg';
+  import toastThemes, { success } from '$lib/toastThemes';
   import { User, Lock } from '@steeze-ui/feather-icons';
+  import { toast } from '@zerodevx/svelte-toast';
   import type { ActionData } from './$types';
 
   export let form: ActionData;
@@ -10,7 +13,16 @@
 
 <h2 class="text-2xl font-montserrat font-semibold mb-2">Create a New Account</h2>
 <p class="text-sm text-neutral-300 mb-4">Let's Get Started! Fill Out the Form Below to Register</p>
-<form class="space-y-2" method="post" action="?/register">
+<form
+  class="space-y-2"
+  method="post"
+  action="?/register"
+  use:enhance={() =>
+    async ({ result }) => {
+      if (result.type === 'success') toast.push('Registration successful!', { theme: toastThemes.success });
+      await applyAction(result);
+    }}
+>
   <InputWithIcon icon={User} placeholder="Username" name="username" pattern={'[a-zA-Z0-9_]{3,16}'} required />
   {#if form?.error === 'username'}
     <span class="error">Username is invalid or already in-use</span>

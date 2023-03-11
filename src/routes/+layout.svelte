@@ -1,5 +1,6 @@
 <script>
   import '../app.postcss';
+  import { SvelteToast } from '@zerodevx/svelte-toast';
 </script>
 
 <svelte:head>
@@ -10,5 +11,7 @@
     rel="stylesheet"
   />
 </svelte:head>
+
+<SvelteToast />
 
 <slot />

@@ -1,5 +1,6 @@
 import minio from 'minio';
 import crypto from 'crypto';
+import sharp from 'sharp';
 
 const config =
   process.env.MINIO_ENDPOINT && process.env.MINIO_ACCESS_KEY && process.env.MINIO_SECRET_KEY
@@ -20,7 +21,15 @@ export const uploadImage = async (file: File) => {
   if (!client) return null;
   if (!(await client.bucketExists('uploads'))) return null;
 
+  // validate file
   const buffer = Buffer.from(await file.arrayBuffer());
+  if (
+    !(await sharp(buffer)
+      .metadata()
+      .catch(() => null))
+  )
+    return null;
+
   const hash = crypto.createHash('sha256').update(buffer).digest('hex');
   const name = `${hash}.${file.name.split('.').at(-1)}`;
 

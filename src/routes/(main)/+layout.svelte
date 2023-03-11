@@ -14,7 +14,6 @@
   } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import type { LayoutServerData } from './$types';
-  import { SvelteToast } from '@zerodevx/svelte-toast';
   import classnames from 'classnames';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
@@ -35,8 +34,6 @@
     }
   }}
 />
-
-<SvelteToast />
 
 <aside
   class={classnames('fixed h-screen left-0 px-2 py-6 bg-neutral-850 shadow-md', {
