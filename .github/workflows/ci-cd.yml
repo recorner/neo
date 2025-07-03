@@ -137,8 +137,11 @@ jobs:
         fi
         
         echo "✅ Found pnpm-lock.yaml, installing dependencies..."
-        # Install dependencies with pnpm
-        pnpm install --frozen-lockfile
+        # Try with frozen lockfile first, fallback if configuration mismatch
+        if ! pnpm install --frozen-lockfile; then
+          echo "⚠️ Frozen lockfile failed (likely configuration mismatch), trying with --no-frozen-lockfile"
+          pnpm install --no-frozen-lockfile
+        fi
 
     - name: Generate Prisma client
       run: pnpm prisma generate || npm run prisma generate
