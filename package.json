@@ -7,7 +7,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "prettier --plugin-search-dir . --check . && eslint .",
+    "format": "prettier --plugin-search-dir . --write .",
+    "test": "echo 'Tests would run here' && exit 0",
+    "test:unit": "vitest",
+    "test:integration": "playwright test"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^6.0.1",
