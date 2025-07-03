@@ -172,7 +172,19 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Check Docker Hub credentials
+      id: check-credentials
+      run: |
+        if [ -n "${{ secrets.DOCKER_USERNAME }}" ] && [ -n "${{ secrets.DOCKER_PASSWORD }}" ]; then
+          echo "has_credentials=true" >> $GITHUB_OUTPUT
+          echo "✅ Docker Hub credentials found - will build and push"
+        else
+          echo "has_credentials=false" >> $GITHUB_OUTPUT
+          echo "⚠️ Docker Hub credentials not configured - will build only (no push)"
+        fi
+
     - name: Login to Docker Hub
+      if: steps.check-credentials.outputs.has_credentials == 'true'
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
@@ -182,19 +194,30 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ secrets.DOCKER_USERNAME }}/neo
+        images: ${{ secrets.DOCKER_USERNAME || 'neo' }}/neo
         tags: |
           type=ref,event=branch
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
 
     - name: Build and push Docker image
+      if: steps.check-credentials.outputs.has_credentials == 'true'
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build Docker image (no push)
+      if: steps.check-credentials.outputs.has_credentials == 'false'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: neo:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -247,8 +270,24 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Check deployment credentials
+      id: check-deploy
+      run: |
+        if [ -n "${{ secrets.DEPLOY_HOST }}" ] && [ -n "${{ secrets.DEPLOY_USER }}" ] && [ -n "${{ secrets.DEPLOY_KEY }}" ]; then
+          echo "has_credentials=true" >> $GITHUB_OUTPUT
+          echo "✅ Deployment credentials found - will deploy to production"
+        else
+          echo "has_credentials=false" >> $GITHUB_OUTPUT
+          echo "⚠️ Deployment credentials not configured - skipping production deployment"
+          echo "To enable deployment, configure these secrets:"
+          echo "- DEPLOY_HOST: Your production server hostname"
+          echo "- DEPLOY_USER: SSH username for deployment"
+          echo "- DEPLOY_KEY: Private SSH key for deployment"
+        fi
       
     - name: Deploy to production server
+      if: steps.check-deploy.outputs.has_credentials == 'true'
       env:
         DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
