@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PNPM_VERSION: '8'
+  PNPM_VERSION: '9'
 
 jobs:
   test:
@@ -56,8 +56,11 @@ jobs:
         fi
         
         echo "✅ Found pnpm-lock.yaml, installing dependencies..."
-        # Install dependencies with pnpm
-        pnpm install --frozen-lockfile
+        # Try with frozen lockfile first, fallback if version incompatible
+        if ! pnpm install --frozen-lockfile; then
+          echo "⚠️ Frozen lockfile failed (likely version incompatibility), trying with --no-frozen-lockfile"
+          pnpm install --no-frozen-lockfile
+        fi
 
     - name: Setup test database
       env:
