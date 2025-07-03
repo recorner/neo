@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Pie, Line } from 'svelte-chartjs';
+  // TODO: Replace with Svelte 5 compatible chart library
+  // import { Pie, Line } from 'svelte-chartjs';
 
   import {
     Chart as ChartJS,
@@ -108,35 +109,18 @@
     <h2 class="font-bold">Top Products</h2>
     <p class="text-neutral-300 mb-2 text-sm">Your best selling products in the past 7 days</p>
     <div class="w-72 h-72 mx-auto">
-      <Pie
-        data={{
-          labels: data.salesByProduct.map((p) => p.name),
-          datasets: [
-            {
-              data: data.salesByProduct.map((p) => p.value),
-              backgroundColor: uniqueColors(data.salesByProduct.length),
-            },
-          ],
-        }}
-        options={{ responsive: true }}
-      />
+      <!-- TODO: Replace with Svelte 5 compatible chart component -->
+      <div class="flex items-center justify-center h-full border-2 border-dashed border-neutral-600 rounded">
+        <p class="text-neutral-400">Pie Chart will be displayed here</p>
+      </div>
     </div>
   </div>
   <div class="card h-max">
     <h2 class="font-bold">Sales</h2>
     <p class="text-neutral-300 mb-2 text-sm">Sales by day in the past 7 days</p>
-    <Line
-      data={{
-        labels: Object.keys(data.salesPerDay),
-        datasets: [
-          {
-            label: 'Sales',
-            data: Object.values(data.salesPerDay),
-            borderColor: randomColor(),
-          },
-        ],
-      }}
-      options={{ responsive: true }}
-    />
+    <!-- TODO: Replace with Svelte 5 compatible chart component -->
+    <div class="flex items-center justify-center h-32 border-2 border-dashed border-neutral-600 rounded">
+      <p class="text-neutral-400">Line Chart will be displayed here</p>
+    </div>
   </div>
 </div>

@@ -1,3 +1,6 @@
+packages:
+  - '.'
+
 ignoredBuiltDependencies:
   - '@parcel/watcher'
   - '@prisma/client'
@@ -8,4 +11,5 @@ ignoredBuiltDependencies:
   - esbuild
   - prisma
   - sharp
+  - svelte-preprocess
   - svelte-preprocess
