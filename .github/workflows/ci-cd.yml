@@ -44,11 +44,19 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'pnpm'
+        cache-dependency-path: 'pnpm-lock.yaml'
 
     - name: Install dependencies
       run: |
-        # Try pnpm first, then npm with legacy peer deps as fallback
-        pnpm install --no-frozen-lockfile || npm install --legacy-peer-deps
+        # Verify pnpm-lock.yaml exists
+        if [ ! -f "pnpm-lock.yaml" ]; then
+          echo "pnpm-lock.yaml not found in current directory"
+          ls -la
+          exit 1
+        fi
+        
+        # Install dependencies with pnpm
+        pnpm install --frozen-lockfile
 
     - name: Setup test database
       env:
@@ -89,11 +97,19 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'pnpm'
+        cache-dependency-path: 'pnpm-lock.yaml'
 
     - name: Install dependencies
       run: |
-        # Try pnpm first, then npm with legacy peer deps as fallback
-        pnpm install --no-frozen-lockfile || npm install --legacy-peer-deps
+        # Verify pnpm-lock.yaml exists
+        if [ ! -f "pnpm-lock.yaml" ]; then
+          echo "pnpm-lock.yaml not found in current directory"
+          ls -la
+          exit 1
+        fi
+        
+        # Install dependencies with pnpm
+        pnpm install --frozen-lockfile
 
     - name: Generate Prisma client
       run: pnpm prisma generate || npm run prisma generate
