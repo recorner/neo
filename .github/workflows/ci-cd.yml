@@ -48,11 +48,14 @@ jobs:
       run: |
         # Verify pnpm-lock.yaml exists
         if [ ! -f "pnpm-lock.yaml" ]; then
-          echo "pnpm-lock.yaml not found in current directory"
+          echo "❌ pnpm-lock.yaml not found in current directory"
+          echo "This is required for reproducible builds in CI/CD"
+          echo "Please ensure pnpm-lock.yaml is not in .gitignore and is committed to the repository"
           ls -la
           exit 1
         fi
         
+        echo "✅ Found pnpm-lock.yaml, installing dependencies..."
         # Install dependencies with pnpm
         pnpm install --frozen-lockfile
 
@@ -118,11 +121,14 @@ jobs:
       run: |
         # Verify pnpm-lock.yaml exists
         if [ ! -f "pnpm-lock.yaml" ]; then
-          echo "pnpm-lock.yaml not found in current directory"
+          echo "❌ pnpm-lock.yaml not found in current directory"
+          echo "This is required for reproducible builds in CI/CD"
+          echo "Please ensure pnpm-lock.yaml is not in .gitignore and is committed to the repository"
           ls -la
           exit 1
         fi
         
+        echo "✅ Found pnpm-lock.yaml, installing dependencies..."
         # Install dependencies with pnpm
         pnpm install --frozen-lockfile
 

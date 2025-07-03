@@ -14,7 +14,7 @@ haproxy/bundle.pem
 
 # Additional production-grade gitignore
 .pnpm-store/
-pnpm-lock.yaml
+# pnpm-lock.yaml - SHOULD NOT BE IGNORED FOR PRODUCTION
 logs/
 *.log
 npm-debug.log*
