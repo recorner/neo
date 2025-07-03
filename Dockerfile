@@ -12,9 +12,10 @@ RUN npm install -g pnpm
 # Install Winston logger locally in your project
 RUN pnpm add winston
 
-# Copy package.json and pnpm-lock.yaml to install project dependencies
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
+# Copy package files to install project dependencies
+COPY package.json ./
+# Use --no-frozen-lockfile since we don't have a lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copy the rest of your application files
 COPY . .

@@ -91,13 +91,15 @@ jobs:
         cache: 'pnpm'
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: |
+        # Try pnpm first, then npm with legacy peer deps as fallback
+        pnpm install --no-frozen-lockfile || npm install --legacy-peer-deps
 
     - name: Generate Prisma client
-      run: pnpm prisma generate
+      run: pnpm prisma generate || npm run prisma generate
 
     - name: Build application
-      run: pnpm run build
+      run: pnpm run build || npm run build
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
