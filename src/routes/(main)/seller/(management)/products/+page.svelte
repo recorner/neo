@@ -19,7 +19,7 @@
         <th>Category</th>
         <th>Price</th>
         <th>Stock</th>
-        <th />
+        <th></th>
       </tr>
     </thead>
     <tbody>

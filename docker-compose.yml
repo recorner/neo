@@ -8,16 +8,16 @@ services:
     expose:
       - 3000
     environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=${DATABASE_URL}
       - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - UPLOAD_PREFIX=/uploads
       - NOWPAYMENTS_API_KEY=${NOWPAYMENTS_API_KEY}
-      - JWT_SECRET=${JWT_SECRET}
       - BODY_SIZE_LIMIT=10485760
       - PROTOCOL_HEADER=x-forwarded-proto
       - HOST_HEADER=x-forwarded-host
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - postgres
       - minio
@@ -38,11 +38,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=doadmin
+      - POSTGRES_PASSWORD=AVNS_3b1YnGoB1Y5mAysdpOx
+      - POSTGRES_DB=defaultdb
     ports:
-      - 5432:5432
+      - 5433:5432
   minio:
     image: minio/minio
     restart: unless-stopped

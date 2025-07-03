@@ -1,4 +1,4 @@
-import minio from 'minio';
+import { Client } from 'minio';
 import crypto from 'crypto';
 import sharp from 'sharp';
 
@@ -13,7 +13,7 @@ const config =
       }
     : null;
 
-const client = config ? new minio.Client(config) : null;
+const client = config ? new Client(config) : null;
 
 export default client;
 

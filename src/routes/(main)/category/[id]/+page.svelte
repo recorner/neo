@@ -22,12 +22,14 @@
 {:else}
   <table class="card w-full overflow-hidden">
     <thead>
-      <th>Name</th>
-      <th>Seller</th>
-      <th>Description</th>
-      <th>Stock</th>
-      <th>Price</th>
-      <th />
+      <tr>
+        <th>Name</th>
+        <th>Seller</th>
+        <th>Description</th>
+        <th>Stock</th>
+        <th>Price</th>
+        <th></th>
+      </tr>
     </thead>
     <tbody>
       {#if data.category.products}

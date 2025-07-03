@@ -1,0 +1,11 @@
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@sveltejs/kit'
+  - argon2
+  - canvas
+  - esbuild
+  - prisma
+  - sharp
+  - svelte-preprocess

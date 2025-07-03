@@ -1,5 +1,4 @@
 <script lang="ts">
-  import CaptchaInput from '$lib/components/CaptchaInput.svelte';
   import InputWithIcon from '$lib/components/InputWithIcon.svelte';
   import Logo from '$lib/logo.svg';
   import { User, Lock, Hash } from '@steeze-ui/feather-icons';
@@ -35,10 +34,6 @@
     <InputWithIcon icon={Lock} placeholder="Password" name="password" type="password" minlength="8" required />
     {#if form?.error === 'credentials'}
       <span class="error">Invalid credentials</span>
-    {/if}
-    <CaptchaInput />
-    {#if form?.error === 'captcha'}
-      <span class="error">Invalid captcha</span>
     {/if}
     <button type="submit" class="btn"> Login </button>
     <div class="text-center">

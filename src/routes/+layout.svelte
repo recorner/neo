@@ -10,6 +10,9 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap"
     rel="stylesheet"
   />
+  <slot name="title">
+    <title>Untouchable</title>
+  </slot>
 </svelte:head>
 
 <SvelteToast />

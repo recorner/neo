@@ -1,5 +1,4 @@
 import type { Actions } from './$types';
-import { validate } from '$lib/captcha';
 import { fail, redirect } from '@sveltejs/kit';
 import prisma from '$lib/prisma';
 import argon from 'argon2';
@@ -9,14 +8,6 @@ import n2fa from 'node-2fa';
 export const actions: Actions = {
   async login({ cookies, request }) {
     const body = await request.formData();
-
-    const captcha = cookies.get('captcha') as string;
-    const rng = cookies.get('rng') as string;
-    cookies.delete('captcha', { path: '/' });
-    cookies.delete('rng', { path: '/' });
-    if (!validate(captcha, rng, body.get('captcha') as string)) {
-      return fail(400, { error: 'captcha' });
-    }
 
     const username = body.get('username');
     const password = body.get('password');

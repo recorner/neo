@@ -1,11 +1,9 @@
 <script lang="ts">
   import { applyAction, enhance } from '$app/forms';
-  import CaptchaInput from '$lib/components/CaptchaInput.svelte';
   import InputWithIcon from '$lib/components/InputWithIcon.svelte';
-  import Logo from '$lib/logo.svg';
-  import toastThemes, { success } from '$lib/toastThemes';
-  import { User, Lock } from '@steeze-ui/feather-icons';
+  import { User, Lock, MessageCircle } from '@steeze-ui/feather-icons';
   import { toast } from '@zerodevx/svelte-toast';
+  import toastThemes, { success } from '$lib/toastThemes';
   import type { ActionData } from './$types';
 
   export let form: ActionData;
@@ -42,10 +40,7 @@
   {#if form?.error === 'confirmPassword'}
     <span class="error">Passwords do not match</span>
   {/if}
-  <CaptchaInput />
-  {#if form?.error === 'captcha'}
-    <span class="error">Invalid captcha</span>
-  {/if}
+  <InputWithIcon icon={MessageCircle} placeholder="Telegram Username" name="telegramUsername" type="text" />
   <button type="submit" class="btn"> Register </button>
   <div class="text-center">
     <span>Already have an account?</span>

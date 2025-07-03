@@ -15,6 +15,8 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "userIcon" TEXT, -- Added field for userIcon
+    "md2faCodes" TEXT[] NOT NULL DEFAULT '{}', -- Added field for md2faCodes (default empty array)
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "role" "Role"[],
 

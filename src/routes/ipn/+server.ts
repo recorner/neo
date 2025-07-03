@@ -11,10 +11,10 @@ export const POST: RequestHandler = async ({ request }) => {
   const signature = hmac.digest('hex');
   if (signature !== request.headers.get('x-nowpayments-sig')) return json({ error: 'signature' }, { status: 500 });
 
-  if (body.status == 'confirmed') {
+  if (body.payment_status == 'confirmed') {
     const topUp = await prisma.topUp.findUnique({
       where: {
-        reference: body.payment_id,
+        reference: `${body.invoice_id}`,
       },
       select: {
         id: true,

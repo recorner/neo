@@ -39,12 +39,14 @@
 {:else}
   <table class="card w-full overflow-hidden">
     <thead>
-      <th>Username</th>
-      <th>Timestamp</th>
-      <th>Address</th>
-      <th>Amount</th>
-      <th>Status</th>
-      <th />
+      <tr>
+        <th>Username</th>
+        <th>Timestamp</th>
+        <th>Address</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
     </thead>
     <tbody>
       {#each data.payouts as payout}

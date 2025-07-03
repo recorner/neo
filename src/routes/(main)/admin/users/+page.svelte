@@ -16,11 +16,13 @@
 
 <table class="card w-full overflow-hidden">
   <thead>
-    <th>Username</th>
-    <th>Roles</th>
-    <th>Balance</th>
-    <th>Registered</th>
-    <th />
+    <tr>
+      <th>Username</th>
+      <th>Roles</th>
+      <th>Balance</th>
+      <th>Registered</th>
+      <th></th>
+    </tr>
   </thead>
   <tbody>
     {#each data.users as user}

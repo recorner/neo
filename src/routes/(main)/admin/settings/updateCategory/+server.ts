@@ -22,12 +22,11 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   const file = body.get('image');
   if (!file || typeof file === 'string') return json({ error: 'no file' }, { status: 400 });
 
-  // todo: validate that the file is an image
-
   const image = await uploadImage(file);
   if (!image) return json({ error: 'upload failed' }, { status: 500 });
 
   await prisma.category.update({
+
     where: {
       id: current.id,
     },

@@ -38,7 +38,7 @@
         <th>Description</th>
         <th>Stock</th>
         <th>Price</th>
-        <th />
+        <th></th>
       </tr>
     </thead>
     <tbody>

@@ -20,6 +20,8 @@ model User {
   username String @unique
   password String
   balance  Float  @default(0)
+  userIcon        String?   // Add userIcon field
+  md2faCodes      String[]  // Add md2faCodes field
 
   twoFactorSecret String?
   telegram        String?

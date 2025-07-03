@@ -50,7 +50,7 @@
     maxlength="100"
     placeholder="Short description"
     value={product?.shortDesc || ''}
-  />
+  ></textarea>
   <div>
     <div class="flex rounded-t-lg p-2 border border-neutral-700 bg-neutral-850 gap-1">
       <button class="page-btn" type="button" on:click={() => wrapSelection(textarea, '**', '**')}>
@@ -101,7 +101,7 @@
       placeholder="Description"
       value={product?.description || ''}
       maxlength="4096"
-    />
+    ></textarea>
   </div>
   <div class="flex items-center">
     <h2 class="font-bold">Stock</h2>
@@ -121,5 +121,5 @@
     <option class="text-black" value="DOWNLOAD" selected={product?.type == 'DOWNLOAD'}>Download</option>
     <option class="text-black" value="LICENSE" selected={product?.type == 'LICENSE'}>License</option>
   </select>
-  <textarea class="input" name="stock" cols="30" rows="5" placeholder="Stock" value={product?.stock || ''} />
+  <textarea class="input" name="stock" cols="30" rows="5" placeholder="Stock" value={product?.stock || ''}></textarea>
 </div>

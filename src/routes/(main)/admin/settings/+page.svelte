@@ -183,7 +183,7 @@
       <p class="text-sm text-neutral-300 mb-2">Post an announcement visible to all members</p>
       <div class="space-y-2">
         <InputWithIcon icon={Type} placeholder="Title" name="title" />
-        <textarea class="input w-full" placeholder="Announcement" name="message" />
+        <textarea class="input w-full" placeholder="Announcement" name="message"></textarea>
         <button class="btn">Post</button>
       </div>
     </form>
