@@ -108,7 +108,7 @@
                 min={1}
                 max={data.pages}
                 class="bg-neutral-850 rounded-lg px-2 py-1 w-14 border border-neutral-700"
-                on:change={(e) => goToPage(Number(e.target.value))}
+                on:change={(e) => goToPage(Number((e.target as HTMLSelectElement).value))}
               />
               <p>of {data.pages}</p>
             </div>

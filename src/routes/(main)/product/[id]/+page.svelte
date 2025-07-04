@@ -50,11 +50,12 @@
             theme: toastThemes.success,
           });
         } else if (result.type === 'failure') {
+          const errorMessages = {
+            quantity: 'Bad Quantity',
+            full: 'You already have the maximum amount of this product in your cart',
+          };
           toast.push(
-            {
-              quantity: 'Bad Quantity',
-              full: 'You already have the maximum amount of this product in your cart',
-            }[result.data.error],
+            errorMessages[result.data.error as keyof typeof errorMessages] || 'An error occurred',
             {
               theme: toastThemes.error,
             }
@@ -74,8 +75,8 @@
         <div class="my-6 text-xl font-bold text-center">
           ${(data.product.price * quantity).toFixed(2)}
         </div>
-        {#if data.product.stock == '∞' || data.product.stock > 0}
-          {@const max = data.product.stock == '∞' ? 1 : data.product.stock}
+        {#if data.product.stock == '∞' || (typeof data.product.stock === 'string' ? parseInt(data.product.stock) : data.product.stock) > 0}
+          {@const max = data.product.stock == '∞' ? 1 : (typeof data.product.stock === 'string' ? parseInt(data.product.stock) : data.product.stock)}
           {@const updateQuantity = (value) => {
             if (value < 1) quantity = 1;
             else if (value > max) quantity = max;

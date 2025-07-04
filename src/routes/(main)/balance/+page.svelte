@@ -22,25 +22,26 @@
     action="?/transfer"
     method="post"
     class="card h-max"
-    use:enhance={({ form }) =>
+    use:enhance={({ formElement }) =>
       async ({ result }) => {
         if (result.type == 'success') {
           toast.push('Transfer successful', {
             theme: toastThemes.success,
           });
 
-          form.reset();
+          formElement.reset();
           await invalidateAll();
         } else if (result.type == 'error') {
           toast.push(result.error.message, {
             theme: toastThemes.error,
           });
         } else if (result.type == 'failure') {
+          const errorMessages = {
+            amount: 'Insufficient funds',
+            user: 'Invalid username',
+          };
           toast.push(
-            {
-              amount: 'Insufficient funds',
-              user: 'Invalid username',
-            }[result.data.error],
+            errorMessages[result.data.error as keyof typeof errorMessages] || 'An error occurred',
             {
               theme: toastThemes.error,
             }

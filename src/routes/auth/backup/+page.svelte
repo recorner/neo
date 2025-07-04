@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { toast } from '@zerodevx/svelte-toast';
+  import toastThemes from '$lib/toastThemes';
 
   let md2faCodes: string[] = [];
 
@@ -15,7 +16,7 @@
   const copyCodes = () => {
     const concatenatedCodes = md2faCodes.join('\n'); // Join codes with newline for better formatting
     navigator.clipboard.writeText(concatenatedCodes);
-    toast.push('Codes copied to clipboard! Remember the order.', { theme: 'success' });
+    toast.push('Codes copied to clipboard! Remember the order.', { theme: toastThemes.success });
   };
 </script>
 

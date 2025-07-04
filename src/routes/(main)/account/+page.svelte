@@ -29,7 +29,7 @@
       class="space-y-2"
       method="post"
       action="?/updatePassword"
-      use:enhance={({ form }) =>
+      use:enhance={({ formElement }) =>
         ({ result }) => {
           if (result.type == 'success') {
             toast.push('Password updated', {
@@ -40,18 +40,19 @@
               theme: toastThemes.error,
             });
           } else if (result.type == 'failure') {
+            const errorMessages = {
+              password: 'Incorrect password',
+              confirm: 'Passwords do not match',
+            };
             toast.push(
-              {
-                password: 'Incorrect password',
-                confirm: 'Passwords do not match',
-              }[result.data.error],
+              errorMessages[result.data.error as keyof typeof errorMessages] || 'An error occurred',
               {
                 theme: toastThemes.error,
               }
             );
           }
 
-          form.reset();
+          formElement.reset();
         }}
     >
       <InputWithIcon type="password" placeholder="Current Password" icon={Lock} name="current" />
@@ -78,11 +79,12 @@
                 theme: toastThemes.error,
               });
             } else if (result.type == 'failure') {
+              const errorMessages = {
+                code: 'Invalid code',
+                missing: 'Missing code',
+              };
               toast.push(
-                {
-                  code: 'Invalid code',
-                  missing: 'Missing code',
-                }[result.data.error],
+                errorMessages[result.data.error as keyof typeof errorMessages] || 'An error occurred',
                 {
                   theme: toastThemes.error,
                 }

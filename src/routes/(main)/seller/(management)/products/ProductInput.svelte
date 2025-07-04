@@ -70,7 +70,7 @@
           class="hidden"
           on:change={(e) => {
             const formData = new FormData();
-            formData.append('file', e.target.files[0]);
+            formData.append('file', (e.target as HTMLInputElement).files![0]);
             fetch('/seller/products/image', {
               method: 'POST',
               body: formData,
@@ -81,7 +81,7 @@
                   wrapSelection(textarea, `![`, `](${res.image})`);
                 }
 
-                e.target.value = '';
+                (e.target as HTMLInputElement).value = '';
               })
               .catch((err) => {
                 toast.push(err, {

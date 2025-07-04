@@ -36,7 +36,7 @@
       class="space-y-2"
       method="post"
       action="?/payout"
-      use:enhance={({ form }) =>
+      use:enhance={({ formElement }) =>
         async ({ result }) => {
           if (result.type == 'success') {
             toast.push('Payout requested', {
@@ -47,10 +47,11 @@
               theme: toastThemes.error,
             });
           } else if (result.type == 'failure') {
+            const errorMessages = {
+              address: 'Invalid address',
+            };
             toast.push(
-              {
-                address: 'Invalid address',
-              }[result.data.error],
+              errorMessages[result.data.error as keyof typeof errorMessages] || 'An error occurred',
               {
                 theme: toastThemes.error,
               }
@@ -58,7 +59,7 @@
           }
 
           await invalidateAll();
-          form.reset();
+          formElement.reset();
         }}
     >
       <InputWithIcon icon={Monero} type="text" placeholder="Address" name="address" />
@@ -81,7 +82,7 @@
       class="space-y-2"
       method="post"
       action="?/contact"
-      use:enhance={({ form }) =>
+      use:enhance={({ formElement }) =>
         async ({ result }) => {
           if (result.type == 'success') {
             toast.push('Contact details updated', {
@@ -93,7 +94,7 @@
             });
           }
 
-          form.reset();
+          formElement.reset();
         }}
     >
       <InputWithIcon icon={Telegram} placeholder="Telgram" name="telegram" />

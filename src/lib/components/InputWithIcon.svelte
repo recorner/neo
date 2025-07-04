@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Icon } from '@steeze-ui/svelte-icon';
-  import type { IconSource } from '@steeze-ui/svelte-icon/types';
+  import type { IconSource } from '@steeze-ui/svelte-icon';
   import classnames from 'classnames';
 
   export let icon: IconSource;

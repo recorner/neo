@@ -46,11 +46,11 @@
       class="card h-max"
       method="post"
       action="?/updatePassword"
-      use:enhance={({ form }) =>
+      use:enhance={({ formElement }) =>
         ({ result }) => {
           if (result.type === 'success') {
             toast.push('Password changed successfully', { theme: toastThemes.success });
-            form.reset();
+            formElement.reset();
           } else if (result.type === 'error') {
             toast.push(result.error.message, { theme: toastThemes.error });
           } else if (result.type === 'failure') {
@@ -69,7 +69,7 @@
       action="?/updateRoles"
       class="card h-max"
       method="post"
-      use:enhance={({ form }) =>
+      use:enhance={() =>
         ({ result }) => {
           if (result.type === 'success') {
             toast.push('Roles updated', { theme: toastThemes.success });

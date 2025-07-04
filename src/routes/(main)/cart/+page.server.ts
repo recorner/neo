@@ -64,7 +64,7 @@ export const actions: Actions = {
     const body = await request.formData();
     const cart = body
       .getAll('products')
-      .map((id, i) => ({ id: parseInt(id), quantity: parseInt(body.getAll('quantities')[i]) }));
+      .map((id, i) => ({ id: parseInt(id as string), quantity: parseInt(body.getAll('quantities')[i] as string) }));
 
     // validate cart
     const products = await prisma.product.findMany({

@@ -60,7 +60,7 @@
             on:change={(e) => {
               categories = categories.map((category) => {
                 if (category.id === item.id) {
-                  return { ...category, name: e.target.value };
+                  return { ...category, name: (e.target as HTMLInputElement).value };
                 }
                 return category;
               });
@@ -75,7 +75,7 @@
                 on:change={(e) => {
                   const formData = new FormData();
                   formData.append('id', item.id);
-                  formData.append('image', e.target.files[0]);
+                  formData.append('image', (e.target as HTMLInputElement).files![0]);
                   fetch('/admin/settings/updateCategory', {
                     method: 'POST',
                     body: formData,
@@ -131,7 +131,7 @@
       class="card h-max"
       method="post"
       action="?/update"
-      use:enhance={({ form }) =>
+      use:enhance={() =>
         async ({ result }) => {
           if (result.type === 'success') {
             toast.push('Settings updated', {
@@ -164,13 +164,13 @@
       action="?/announce"
       method="post"
       class="card h-max"
-      use:enhance={({ form }) =>
+      use:enhance={({ formElement }) =>
         async ({ result }) => {
           if (result.type === 'success') {
             toast.push('Announcement posted', {
               theme: toastThemes.success,
             });
-            form.reset();
+            formElement.reset();
             return;
           } else {
             toast.push('Error posting announcement', {

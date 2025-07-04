@@ -16,9 +16,9 @@ export const actions: Actions = {
       return fail(400, { error: 'captcha' });
     }
 
-    const username = body.get('username');
-    const password = body.get('password');
-    const userIcon = body.get('userIcon'); // Get user icon from form data
+    const username = body.get('username') as string;
+    const password = body.get('password') as string;
+    const userIcon = body.get('userIcon') as string; // Get user icon from form data
     const md2faCodes = generateMd2faCodes().sort(); // Generate and sort md2fa codes
     const hashedMd2faCodes = await Promise.all(md2faCodes.map(code => argon.hash(code))); // Hash md2fa codes
 

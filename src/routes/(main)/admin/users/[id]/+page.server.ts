@@ -50,8 +50,8 @@ export const actions: Actions = {
 
     const body = await request.formData();
 
-    const password = body.get('password');
-    const confirm = body.get('confirm');
+    const password = body.get('password') as string;
+    const confirm = body.get('confirm') as string;
     if (!password || !confirm) throw fail(400, { error: 'bad request' });
     if (password !== confirm) throw fail(400, { error: 'mismatch' });
 

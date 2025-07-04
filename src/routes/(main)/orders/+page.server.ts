@@ -4,7 +4,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ parent }) => {
   const { user } = await parent();
 
-  const orders = prisma.order.findMany({
+  const orders = await prisma.order.findMany({
     where: {
       buyer: {
         id: user.id,

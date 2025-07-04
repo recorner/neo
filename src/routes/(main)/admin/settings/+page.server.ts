@@ -30,11 +30,11 @@ export const actions: Actions = {
             key,
           },
           update: {
-            value: settings[key],
+            value: settings[key] as string,
           },
           create: {
             key,
-            value: settings[key],
+            value: settings[key] as string,
           },
         });
       })

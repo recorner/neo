@@ -47,7 +47,7 @@ export const actions: Actions = {
     if (!user?.id || !user.role.includes(Role.SELLER)) return fail(401, { error: 'unauthorized' });
     const body = await request.formData();
 
-    if (body.get('name')?.length > 60 || body.get('description')?.length > 4096 || body.get('shortDesc')?.length > 100)
+    if ((body.get('name') as string)?.length > 60 || (body.get('description') as string)?.length > 4096 || (body.get('shortDesc') as string)?.length > 100)
       return fail(400, { error: 'length' });
 
     // verify that we are the seller of this product
