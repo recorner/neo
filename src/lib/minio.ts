@@ -33,16 +33,10 @@ export const uploadImage = async (file: File) => {
   const hash = crypto.createHash('sha256').update(buffer).digest('hex');
   const name = `${hash}.${file.name.split('.').at(-1)}`;
 
-  const res = await new Promise<string | null>((resolve, reject) =>
-    client.putObject('uploads', name, buffer, (err, etag) => {
-      if (err) reject(err);
-      else resolve(etag);
-    })
-  )
-    .then((etag) => etag)
-    .catch((err) => null);
-
-  if (!res) return null;
-
-  return name;
+  try {
+    const etag = await client.putObject('uploads', name, buffer);
+    return name;
+  } catch (err) {
+    return null;
+  }
 };
