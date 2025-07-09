@@ -13,6 +13,7 @@ datasource db {
 enum Role {
   ADMIN
   SELLER
+  BUYER
 }
 
 model User {
@@ -35,6 +36,11 @@ model User {
   orders        Order[]
   payouts       Payout[]
   announcements Announcement[]
+  
+  // Credit Card relationships
+  sellerCards   CreditCard[] @relation("SellerCards")
+  checkedCards  CreditCard[] @relation("CheckedCards")
+  cardChecks    CardCheck[]  @relation("UserChecks")
 }
 
 model Category {
@@ -160,4 +166,95 @@ model Announcement {
   createdAt DateTime @default(now())
   poster    User     @relation(fields: [userId], references: [id])
   userId    Int
+}
+
+// Credit Card Management System Models
+enum CardStatus {
+  UNCHECKED
+  LIVE
+  DEAD
+}
+
+model CreditCard {
+  id          Int      @id @default(autoincrement())
+  
+  // Core card data
+  cardNumber  String
+  expMonth    String   // MM format
+  expYear     String   // YY or YYYY format
+  cvv         String
+  
+  // Cardholder Information
+  fullName    String?
+  firstName   String?
+  lastName    String?
+  
+  // Address Information
+  address     String?
+  city        String?
+  state       String?
+  zip         String?
+  country     String?
+  
+  // Additional Information
+  phone       String?
+  email       String?
+  ssn         String?
+  dob         String?  // Date of birth
+  mmn         String?  // Mother's maiden name
+  dl          String?  // Driver's license
+  sortCode    String?
+  atmPin      String?
+  carrierPin  String?
+  cardBalance String?
+  userAgent   String?
+  ip          String?
+  
+  // System Information
+  price       Float    @default(0.0)
+  isRefundable Boolean @default(false)
+  isDiscounted Boolean @default(false)
+  isChecked   Boolean  @default(false)
+  status      CardStatus @default(UNCHECKED)
+  
+  // Relationships
+  seller      User     @relation("SellerCards", fields: [sellerId], references: [id])
+  sellerId    Int
+  
+  // Card checks
+  checks      CardCheck[]
+  
+  // Tracking
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  checkedAt   DateTime?
+  checkedBy   User?    @relation("CheckedCards", fields: [checkedById], references: [id])
+  checkedById Int?
+  
+  // Indexing for performance
+  @@index([cardNumber])
+  @@index([zip])
+  @@index([country])
+  @@index([status])
+  @@index([sellerId])
+  @@index([price])
+  @@index([isDiscounted])
+}
+
+model CardCheck {
+  id        Int      @id @default(autoincrement())
+  
+  card      CreditCard @relation(fields: [cardId], references: [id])
+  cardId    Int
+  
+  checker   User     @relation("UserChecks", fields: [checkerId], references: [id])
+  checkerId Int
+  
+  result    CardStatus // LIVE or DEAD
+  cost      Float    @default(0.5)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([checkerId])
+  @@index([cardId])
 }

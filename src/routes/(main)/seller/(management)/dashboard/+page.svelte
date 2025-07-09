@@ -26,6 +26,49 @@
   ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LineElement, LinearScale, PointElement);
 
   export let data: PageData;
+
+  function maskCardNumber(cardNumber: string): string {
+    if (!cardNumber || cardNumber.length < 8) return cardNumber;
+    const first4 = cardNumber.slice(0, 4);
+    const last4 = cardNumber.slice(-4);
+    const masked = '*'.repeat(cardNumber.length - 8);
+    return `${first4}${masked}${last4}`;
+  }
+
+  function getStatusColor(status: string): string {
+    switch (status) {
+      case 'LIVE': return 'text-green-400';
+      case 'DEAD': return 'text-red-400';
+      default: return 'text-neutral-400';
+    }
+  }
+
+  function formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  async function deleteCard(cardId: number) {
+    if (!confirm('Are you sure you want to delete this card?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/cvv/seller/cards/${cardId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        // Refresh the page to update the data
+        location.reload();
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete card');
+    }
+  }
 </script>
 
 <div class="grid md:grid-cols-2 gap-4">
@@ -100,6 +143,85 @@
       <InputWithIcon icon={Telegram} placeholder="Telgram" name="telegram" />
       <button class="btn">Update</button>
     </form>
+  </div>
+</div>
+
+<!-- CVV Management Section -->
+<h2 class="my-5 text-xl font-bold">CVV Management</h2>
+
+<div class="grid md:grid-cols-4 gap-4 mb-6">
+  <div class="card text-center">
+    <h3 class="text-lg font-semibold text-blue-400">Total Cards</h3>
+    <p class="text-2xl font-bold">{data.cvvStats?.totalCards || 0}</p>
+  </div>
+  <div class="card text-center">
+    <h3 class="text-lg font-semibold text-green-400">Live Cards</h3>
+    <p class="text-2xl font-bold">{data.cvvStats?.liveCards || 0}</p>
+  </div>
+  <div class="card text-center">
+    <h3 class="text-lg font-semibold text-yellow-400">Checked Cards</h3>
+    <p class="text-2xl font-bold">{data.cvvStats?.checkedCards || 0}</p>
+  </div>
+  <div class="card text-center">
+    <h3 class="text-lg font-semibold text-purple-400">Total Revenue</h3>
+    <p class="text-2xl font-bold">${(data.cvvStats?.totalRevenue || 0).toFixed(2)}</p>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4 mb-6">
+  <div class="card">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold">Recent Cards</h3>
+      <a href="/cvv/upload" class="btn btn-sm btn-primary">📤 Upload Cards</a>
+    </div>
+    
+    {#if data.recentCards && data.recentCards.length > 0}
+      <div class="space-y-2">
+        {#each data.recentCards as card}
+          <div class="flex justify-between items-center p-3 bg-neutral-800 rounded">
+            <div>
+              <div class="font-mono text-sm">{maskCardNumber(card.cardNumber)}</div>
+              <div class="text-xs text-neutral-400">{card.country || 'Unknown'}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-semibold {getStatusColor(card.status)}">{card.status}</div>
+              <div class="text-xs text-neutral-400">${card.price}</div>
+            </div>
+            <button 
+              on:click={() => deleteCard(card.id)}
+              class="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded hover:bg-neutral-700"
+            >
+              Delete
+            </button>
+          </div>
+        {/each}
+      </div>
+    {:else}
+      <p class="text-neutral-400 text-center py-4">No cards uploaded yet</p>
+    {/if}
+  </div>
+
+  <div class="card">
+    <h3 class="text-lg font-semibold mb-4">Recent Checks</h3>
+    
+    {#if data.recentChecks && data.recentChecks.length > 0}
+      <div class="space-y-2">
+        {#each data.recentChecks as check}
+          <div class="flex justify-between items-center p-3 bg-neutral-800 rounded">
+            <div>
+              <div class="font-mono text-sm">{maskCardNumber(check.card.cardNumber)}</div>
+              <div class="text-xs text-neutral-400">by {check.checker.username}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-semibold {getStatusColor(check.result)}">{check.result}</div>
+              <div class="text-xs text-neutral-400">${check.cost}</div>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {:else}
+      <p class="text-neutral-400 text-center py-4">No checks performed yet</p>
+    {/if}
   </div>
 </div>
 

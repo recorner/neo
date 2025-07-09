@@ -20,29 +20,47 @@
 
   export let data: LayoutServerData;
   let mobileMenu = false;
+  let isMobile = false;
 
   $: browser && localStorage.setItem('mobileMenu', JSON.stringify(mobileMenu));
+  
   onMount(() => {
-    mobileMenu = window.innerHeight < 768 && JSON.parse(localStorage.getItem('mobileMenu') || 'false');
+    isMobile = window.innerWidth < 768;
+    mobileMenu = isMobile ? false : JSON.parse(localStorage.getItem('mobileMenu') || 'false');
   });
 </script>
 
 <svelte:window
   on:resize={() => {
-    if (window.innerWidth > 768) {
-      mobileMenu = false;
+    isMobile = window.innerWidth < 768;
+    if (!isMobile) {
+      mobileMenu = JSON.parse(localStorage.getItem('mobileMenu') || 'false');
     }
   }}
 />
 
+<!-- Mobile menu overlay -->
+{#if isMobile && mobileMenu}
+  <div 
+    class="fixed inset-0 bg-black bg-opacity-50 z-30"
+    role="button"
+    tabindex="0"
+    on:click={() => (mobileMenu = false)}
+    on:keydown={(e) => e.key === 'Escape' && (mobileMenu = false)}
+  ></div>
+{/if}
+
 <aside
-  class={classnames('fixed h-screen left-0 px-2 py-6 bg-neutral-850 shadow-md', {
+  class={classnames('fixed h-screen left-0 px-2 py-6 bg-neutral-850 shadow-md z-40 overflow-y-auto transition-transform duration-300', {
     'w-64': !mobileMenu,
-    mobile: mobileMenu,
+    'w-20': mobileMenu,
+    'mobile': mobileMenu,
+    '-translate-x-full': isMobile && !mobileMenu,
+    'translate-x-0': !isMobile || mobileMenu
   })}
 >
   <img src={Logo} alt="Logo" class="w-8 h-8 mb-4 mx-4" />
-  <nav class="grid gap-1">
+  <nav class="grid gap-1 pb-4">
     <a href="/" class="link">
       <Icon src={Home} class="icon" />
       <span>Home</span>
@@ -57,19 +75,42 @@
       <hr />
     </div>
     {#each data.categories as category}
-      <a href={`/category/${category.id}`} class="link">
-        {#if category.image}
-          <img src={category.image} alt="" class="icon" />
-        {:else}
-          <Icon src={ShoppingCart} class="icon" />
-        {/if}
-        <span>{category.name}</span>
-      </a>
+      {#if category.name.toLowerCase() === 'cvv'}
+        <!-- CVV Category with dropdown -->
+        <div class="relative group">
+          <button class="link group-focus-within:bg-neutral-800 w-full">
+            {#if category.image}
+              <img src={category.image} alt="" class="icon" />
+            {:else}
+              <div class="icon flex items-center justify-center text-lg">💳</div>
+            {/if}
+            <span>{category.name}</span>
+            <Icon src={Menu} class="icon ml-auto transform group-focus-within:rotate-180 transition-transform" />
+          </button>
+          <div class="absolute z-20 top-12 left-0 w-52 bg-neutral-850 shadow-md rounded-lg px-3 py-2 origin-top-left scale-0 group-focus-within:scale-100 transition opacity-0 group-focus-within:opacity-100">
+            <a href={`/category/${category.id}`} class="link">Browse Cards</a>
+            {#if data.user.role.includes('SELLER') || data.user.role.includes('ADMIN')}
+              <a href="/cvv/upload" class="link">Upload Cards</a>
+              <a href="/cvv/seller/dashboard" class="link">CVV Dashboard</a>
+            {/if}
+          </div>
+        </div>
+      {:else}
+        <a href={`/category/${category.id}`} class="link">
+          {#if category.image}
+            <img src={category.image} alt="" class="icon" />
+          {:else}
+            <Icon src={ShoppingCart} class="icon" />
+          {/if}
+          <span>{category.name}</span>
+        </a>
+      {/if}
     {:else}
       {#if !mobileMenu}
         <span class="ml-3 text-sm">No categories</span>
       {/if}
     {/each}
+    
     {#if data.user.role.includes('SELLER')}
       <div class="divider">
         <hr />
@@ -111,17 +152,25 @@
   </nav>
 </aside>
 
-<div class={classnames({ 'pl-64': !mobileMenu, 'pl-20': mobileMenu })}>
-  <div class="bg-neutral-800/25 p-3 flex items-center justify-between gap-1">
+<div class={classnames('transition-all duration-300', {
+  'md:pl-64': !mobileMenu,
+  'md:pl-20': mobileMenu,
+  'pl-0': true
+})}>
+  <div class="bg-neutral-800/25 p-3 flex items-center justify-between gap-1 relative z-30">
     <div>
-      <button type="button" class="link md:!hidden" on:click={() => (mobileMenu = !mobileMenu)}>
+      <button 
+        type="button" 
+        class="link md:hidden" 
+        on:click={() => (mobileMenu = !mobileMenu)}
+      >
         <Icon src={Menu} class="icon" />
       </button>
     </div>
-    <div class="flex gap-1">
-      <a href="/balance" class="link">${data.user.balance.toFixed(2)}</a>
+    <div class="flex gap-1 flex-wrap">
+      <a href="/balance" class="link text-xs sm:text-sm">${data.user.balance.toFixed(2)}</a>
       <a href="/cart" class="link group-focus-within:bg-neutral-800">
-        <span>{data.cart.reduce((acc, cur) => acc + cur.quantity, 0)}</span>
+        <span class="text-xs sm:text-sm">{data.cart.reduce((acc, cur) => acc + cur.quantity, 0)}</span>
         <Icon src={ShoppingCart} class="icon" />
       </a>
       <div class="relative group">
@@ -138,7 +187,7 @@
       </div>
     </div>
   </div>
-  <div class="p-4">
+  <div class="p-2 sm:p-4 overflow-x-auto">
     <slot />
   </div>
 </div>

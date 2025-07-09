@@ -80,10 +80,115 @@ export const load: PageServerLoad = async ({ parent }) => {
     return acc;
   }, {} as Record<string, number>);
 
+  // CVV Stats
+  let cvvStats = {
+    totalCards: 0,
+    checkedCards: 0,
+    liveCards: 0,
+    totalRevenue: 0
+  };
+  
+  let recentCards: any[] = [];
+  let recentChecks: any[] = [];
+
+  try {
+    // Get CVV stats
+    const [
+      totalCards,
+      checkedCards,
+      liveCards,
+      totalRevenue
+    ] = await Promise.all([
+      // Total cards uploaded by seller
+      prisma.creditCard.count({
+        where: { sellerId: user.id }
+      }),
+      
+      // Checked cards
+      prisma.creditCard.count({
+        where: {
+          sellerId: user.id,
+          isChecked: true
+        }
+      }),
+      
+      // Live cards
+      prisma.creditCard.count({
+        where: {
+          sellerId: user.id,
+          status: 'LIVE'
+        }
+      }),
+      
+      // Total revenue from card checks
+      prisma.cardCheck.aggregate({
+        where: {
+          card: { sellerId: user.id }
+        },
+        _sum: {
+          cost: true
+        }
+      })
+    ]);
+
+    cvvStats = {
+      totalCards,
+      checkedCards,
+      liveCards,
+      totalRevenue: totalRevenue._sum.cost || 0
+    };
+
+    // Get recent cards
+    recentCards = await prisma.creditCard.findMany({
+      where: { sellerId: user.id },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 5,
+      select: {
+        id: true,
+        cardNumber: true,
+        country: true,
+        status: true,
+        price: true,
+        createdAt: true
+      }
+    });
+
+    // Get recent checks on seller's cards
+    recentChecks = await prisma.cardCheck.findMany({
+      where: {
+        card: { sellerId: user.id }
+      },
+      include: {
+        card: {
+          select: {
+            cardNumber: true
+          }
+        },
+        checker: {
+          select: {
+            username: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 5
+    });
+
+  } catch (error) {
+    console.error('Error loading CVV data:', error);
+  }
+
   return {
     sales,
     salesByProduct,
     salesPerDay,
+    cvvStats,
+    recentCards,
+    recentChecks,
   };
 };
 

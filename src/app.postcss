@@ -50,6 +50,42 @@
     @apply rounded-full hover:bg-neutral-700 transition p-1;
   }
 
+  /* Custom scrollbar for sidebar */
+  aside::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  aside::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  aside::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  aside::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Mobile responsive utilities */
+  @media (max-width: 768px) {
+    .mobile-hidden {
+      display: none;
+    }
+  }
+
+  /* CVV page responsive styles */
+  @media (max-width: 640px) {
+    .cvv-grid {
+      display: block;
+    }
+    
+    .cvv-grid > * {
+      margin-bottom: 1rem;
+    }
+  }
+
   th,
   td {
     @apply text-left px-4 py-3;

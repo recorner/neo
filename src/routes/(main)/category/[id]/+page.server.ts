@@ -8,6 +8,13 @@ const PER_PAGE = 10;
 
 export const load: PageServerLoad = async ({ parent, url, params }) => {
   const page = Number(url.searchParams.get('page')) || 1;
+  
+  // Check if this is the CVV category (redirect to CVV page)
+  const categoryId = Number(params.id);
+  if (categoryId === 2) { // CVV category ID
+    throw redirect(302, '/cvv');
+  }
+  
   const category = await prisma.category
     .findUnique({
       where: {
@@ -67,6 +74,11 @@ export const load: PageServerLoad = async ({ parent, url, params }) => {
     .then((count) => Math.ceil(count / PER_PAGE));
 
   if (!category) throw redirect(302, '/');
+
+  // Redirect CVV category to dedicated CVV interface
+  if (category.name.toLowerCase() === 'cvv') {
+    throw redirect(302, '/cvv');
+  }
 
   return {
     category,
