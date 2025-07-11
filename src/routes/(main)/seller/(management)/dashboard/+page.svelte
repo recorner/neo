@@ -53,7 +53,7 @@
     }
 
     try {
-      const response = await fetch(`/cvv/seller/cards/${cardId}`, {
+      const response = await fetch(`/seller/cvv/cards/${cardId}`, {
         method: 'DELETE'
       });
 
@@ -168,11 +168,32 @@
   </div>
 </div>
 
+<!-- CVV Management Actions -->
+<div class="grid md:grid-cols-3 gap-4 mb-6">
+  <a href="/seller/cvv" class="card text-center hover:bg-neutral-800 transition-colors">
+    <div class="text-4xl mb-2">💳</div>
+    <h3 class="text-lg font-semibold text-blue-400">Manage Cards</h3>
+    <p class="text-sm text-neutral-400">View and manage your CVV cards</p>
+  </a>
+  
+  <a href="/seller/cvv/upload" class="card text-center hover:bg-neutral-800 transition-colors">
+    <div class="text-4xl mb-2">📤</div>
+    <h3 class="text-lg font-semibold text-green-400">Upload Cards</h3>
+    <p class="text-sm text-neutral-400">Upload new CVV cards to sell</p>
+  </a>
+  
+  <a href="/seller/cvv/dashboard" class="card text-center hover:bg-neutral-800 transition-colors">
+    <div class="text-4xl mb-2">📊</div>
+    <h3 class="text-lg font-semibold text-purple-400">CVV Dashboard</h3>
+    <p class="text-sm text-neutral-400">View CVV analytics and stats</p>
+  </a>
+</div>
+
 <div class="grid md:grid-cols-2 gap-4 mb-6">
   <div class="card">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold">Recent Cards</h3>
-      <a href="/cvv/upload" class="btn btn-sm btn-primary">📤 Upload Cards</a>
+      <a href="/seller/cvv/upload" class="btn btn-sm btn-primary">📤 Upload Cards</a>
     </div>
     
     {#if data.recentCards && data.recentCards.length > 0}

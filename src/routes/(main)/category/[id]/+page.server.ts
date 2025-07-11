@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ parent, url, params }) => {
   
   // Check if this is the CVV category (redirect to CVV page)
   const categoryId = Number(params.id);
-  if (categoryId === 2) { // CVV category ID
+  if (categoryId === 4) { // CVV category ID
     throw redirect(302, '/cvv');
   }
   

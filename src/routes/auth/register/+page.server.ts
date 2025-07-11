@@ -1,5 +1,5 @@
 import type { Actions } from './$types';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import prisma from '$lib/prisma';
 import argon from 'argon2';
 
@@ -21,20 +21,19 @@ export const actions: Actions = {
     if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
       return fail(400, { error: 'username' });
     }
-    
+
     // Check if passwords match
     if (password !== confirmPassword) {
       return fail(400, { error: 'confirmPassword' });
     }
 
-    // Password validation - at least 6 chars, lowercase, uppercase, special char
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
-    if (!passwordRegex.test(password)) {
+    // Password validation - at least 6 characters (simplified)
+    if (password.length < 6) {
       return fail(400, { error: 'password' });
     }
 
     try {
-      // Check if the user already exists in the database
+      // Check if the user already exists by username
       const existingUser = await prisma.user.findUnique({
         where: { username },
         select: { id: true }
@@ -49,7 +48,7 @@ export const actions: Actions = {
       const hashedMd2faCodes = await Promise.all(md2faCodes.map(code => argon.hash(code)));
 
       // Create user
-      await prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
           username,
           password: await argon.hash(password),
@@ -59,19 +58,18 @@ export const actions: Actions = {
         },
       });
 
-      // Redirect to backup page with codes and username
-      throw redirect(302, `/auth/backup?codes=${md2faCodes.join(',')}&username=${username}`);
+      // Return success with codes for backup page
+      return {
+        success: true,
+        md2faCodes,
+        username,
+      };
       
     } catch (error) {
-      // If it's a redirect, let it through
-      if (error instanceof Response) {
-        throw error;
-      }
-      
       console.error('Registration error:', error);
       return fail(500, { error: 'server' });
     }
-  },
+  }
 };
 
 // Function to generate M2FA codes

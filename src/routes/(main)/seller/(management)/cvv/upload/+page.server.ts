@@ -7,12 +7,10 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!user) {
     throw redirect(302, '/auth/login');
   }
-  
-  // Check if user has seller or admin role
-  const canUpload = user.role?.includes('SELLER') || user.role?.includes('ADMIN');
-  
-  if (!canUpload) {
-    throw redirect(302, '/cvv');
+
+  // Only sellers and admins can access this page
+  if (!user.role?.includes('SELLER') && !user.role?.includes('ADMIN')) {
+    throw redirect(302, '/');
   }
 
   return {

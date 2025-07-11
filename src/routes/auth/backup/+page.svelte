@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { toast } from '@zerodevx/svelte-toast';
   import toastThemes from '$lib/toastThemes';
-  import { Copy, Download, Check, Eye, EyeOff } from '@steeze-ui/feather-icons';
+  import { Copy, Download, Check, Eye, EyeOff, Lock } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
   import { goto } from '$app/navigation';
 
@@ -12,6 +12,7 @@
   let codesVisible = false;
   let currentStep = 1;
   let isGenerating = true;
+  let showCodes = false;
 
   onMount(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -19,12 +20,16 @@
     const usernameParam = urlParams.get('username');
     
     if (md2faCodesParam) {
-      // Add a small delay to show the generation animation
+      // Add a realistic delay to show the generation animation
       setTimeout(() => {
         md2faCodes = md2faCodesParam.split(',').sort();
         username = usernameParam || '';
         isGenerating = false;
-      }, 1500);
+        // Add a small delay before showing the codes with animation
+        setTimeout(() => {
+          showCodes = true;
+        }, 300);
+      }, 2000);
     } else {
       // If no codes, redirect to registration
       goto('/auth/register');
@@ -60,9 +65,6 @@
   };
 
   const proceedToLogin = () => {
-    if (!copied && !confirm('Are you sure you have saved your recovery codes? You will not be able to see them again.')) {
-      return;
-    }
     goto('/auth/login');
   };
 </script>
@@ -82,24 +84,45 @@
       {#if isGenerating}
         <!-- Generation Animation -->
         <div class="text-center py-12">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+          <div class="relative mb-6">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
+            </div>
+          </div>
           <h2 class="text-xl font-semibold text-white mb-2">Generating Security Codes</h2>
-          <p class="text-neutral-400">Creating your recovery codes for account security...</p>
-          <div class="mt-6 flex justify-center space-x-1">
-            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+          <p class="text-neutral-400 mb-4">Creating your recovery codes for account security...</p>
+          <div class="mt-6 flex justify-center space-x-2">
+            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+          </div>
+          <div class="mt-6 bg-neutral-800 rounded-lg p-4">
+            <div class="text-sm text-neutral-400 space-y-2">
+              <div class="flex items-center justify-center gap-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Generating cryptographic keys...</span>
+              </div>
+              <div class="flex items-center justify-center gap-2">
+                <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+                <span>Creating secure backup codes...</span>
+              </div>
+              <div class="flex items-center justify-center gap-2">
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 1s"></div>
+                <span>Finalizing account setup...</span>
+              </div>
+            </div>
           </div>
         </div>
       {:else}
-        <!-- Recovery Codes Display -->
-        <div class="space-y-6">
+        <!-- Recovery Codes Display with fade-in animation -->
+        <div class="space-y-6 {showCodes ? 'animate-fade-in' : 'opacity-0'}">
           <div class="text-center">
             <h2 class="text-2xl font-bold text-white mb-2">Save Your Recovery Codes</h2>
             <div class="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4 mb-6">
               <p class="text-yellow-300 text-sm">
-                <strong>⚠️ Important:</strong> These codes can be used to access your account if you lose your password. 
-                Store them securely and do not share them with anyone.
+                <strong>🔒 Secure Design:</strong> Your recovery codes are safely generated and ready to save. 
+                You can copy or download them without displaying them on screen for maximum security.
               </p>
             </div>
           </div>
@@ -108,31 +131,21 @@
           <div class="bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden">
             <div class="p-4 border-b border-neutral-700 flex items-center justify-between">
               <h3 class="font-semibold text-white">Your Recovery Codes</h3>
-              <button 
-                on:click={() => codesVisible = !codesVisible}
-                class="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors"
-              >
-                <Icon src={codesVisible ? EyeOff : Eye} class="w-4 h-4" />
-                {codesVisible ? 'Hide' : 'Show'} Codes
-              </button>
+              <div class="flex items-center gap-2 text-sm text-green-400">
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Ready to Save</span>
+              </div>
             </div>
             
-            <div class="p-4 max-h-64 overflow-y-auto">
-              {#if codesVisible}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {#each md2faCodes as code, index}
-                    <div class="flex items-center p-3 bg-neutral-900 rounded border border-neutral-600 hover:border-neutral-500 transition-colors">
-                      <span class="text-neutral-400 text-sm w-8">{index + 1}.</span>
-                      <code class="font-mono text-green-400 flex-1 text-sm">{code}</code>
-                    </div>
-                  {/each}
+            <div class="p-4">
+              <div class="text-center py-8 bg-neutral-900 rounded border-2 border-dashed border-neutral-600">
+                <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Icon src={Lock} class="w-8 h-8 text-white" />
                 </div>
-              {:else}
-                <div class="text-center py-8">
-                  <Icon src={EyeOff} class="w-8 h-8 text-neutral-500 mx-auto mb-2" />
-                  <p class="text-neutral-500">Click "Show Codes" to reveal your recovery codes</p>
-                </div>
-              {/if}
+                <h4 class="text-white font-semibold mb-2">Codes Generated Securely</h4>
+                <p class="text-neutral-400 text-sm mb-4">Your {md2faCodes.length} recovery codes are ready</p>
+                <p class="text-neutral-500 text-xs">Click Copy or Download to save them safely</p>
+              </div>
             </div>
           </div>
 
@@ -140,8 +153,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               on:click={copyCodes}
-              disabled={!codesVisible}
-              class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200"
+              class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200"
             >
               <Icon src={copied ? Check : Copy} class="w-4 h-4" />
               {copied ? 'Copied!' : 'Copy Codes'}
@@ -149,8 +161,7 @@
             
             <button
               on:click={downloadCodes}
-              disabled={!codesVisible}
-              class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200"
+              class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200"
             >
               <Icon src={Download} class="w-4 h-4" />
               Download Codes
@@ -159,20 +170,27 @@
 
           <!-- Security Checklist -->
           <div class="bg-neutral-800 rounded-lg p-4 border border-neutral-700">
-            <h4 class="font-semibold text-white mb-3">Security Checklist</h4>
-            <div class="space-y-2 text-sm">
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" class="rounded border-neutral-600 bg-neutral-700 text-blue-600">
-                <span class="text-neutral-300">I have copied or downloaded my recovery codes</span>
-              </label>
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" class="rounded border-neutral-600 bg-neutral-700 text-blue-600">
-                <span class="text-neutral-300">I understand these codes are needed for account recovery</span>
-              </label>
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" class="rounded border-neutral-600 bg-neutral-700 text-blue-600">
-                <span class="text-neutral-300">I will store these codes in a secure location</span>
-              </label>
+            <h4 class="font-semibold text-white mb-3 flex items-center gap-2">
+              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              Security Reminder
+            </h4>
+            <div class="space-y-3 text-sm text-neutral-300">
+              <div class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                <span>These codes are automatically secured and ready to use</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                <span>You can copy or download them without revealing them on screen</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                <span>Store them in a secure location like a password manager</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                <span>Each code can only be used once for account recovery</span>
+              </div>
             </div>
           </div>
 
@@ -205,5 +223,35 @@
   
   .animate-pulse {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(-25%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
+  
+  .animate-bounce {
+    animation: bounce 1s infinite;
+  }
+
+  @keyframes fadeIn {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
   }
 </style>

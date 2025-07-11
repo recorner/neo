@@ -1,0 +1,38 @@
+FROM node:20.8.1
+
+WORKDIR /app
+
+# Install necessary system dependencies
+RUN apt-get update \
+    && apt-get install -y build-essential procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install global packages
+RUN npm install -g pnpm
+
+# Copy package files to install project dependencies
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+RUN pnpm install --no-frozen-lockfile
+
+# Copy prisma schema and generate client
+COPY prisma ./prisma
+RUN pnpx prisma generate
+
+# Copy bot service files
+COPY scripts/telegram-bot-service.mjs ./scripts/
+
+# Create a startup script for the bot
+RUN echo '#!/bin/bash\n\
+echo "🤖 Starting Telegram Bot Service..."\n\
+cd /app\n\
+node scripts/telegram-bot-service.mjs' > /app/start-bot.sh
+
+RUN chmod +x /app/start-bot.sh
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD pgrep -f "telegram-bot-service.mjs" || exit 1
+
+# Start the bot service
+CMD ["/app/start-bot.sh"]

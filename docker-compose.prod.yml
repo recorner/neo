@@ -22,6 +22,11 @@ services:
       - PROTOCOL_HEADER=x-forwarded-proto
       - HOST_HEADER=x-forwarded-host
       - NODE_ENV=production
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
+      - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET}
+      - PUBLIC_APP_URL=${PUBLIC_APP_URL}
+      - TELEGRAM_SESSION_TIMEOUT=${TELEGRAM_SESSION_TIMEOUT}
     depends_on:
       postgres:
         condition: service_healthy
@@ -33,6 +38,31 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  telegram-bot:
+    image: neo-bot:latest
+    restart: unless-stopped
+    build: 
+      context: .
+      dockerfile: Dockerfile.bot
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
+      - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET}
+      - PUBLIC_APP_URL=${PUBLIC_APP_URL}
+      - TELEGRAM_SESSION_TIMEOUT=${TELEGRAM_SESSION_TIMEOUT}
+      - JWT_SECRET=${JWT_SECRET}
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "telegram-bot-service.mjs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   haproxy:
     build:

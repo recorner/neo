@@ -21,6 +21,8 @@ services:
     depends_on:
       - postgres
       - minio
+
+
   haproxy:
     build:
       context: haproxy

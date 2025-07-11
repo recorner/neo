@@ -16,7 +16,7 @@ export const actions: Actions = {
       return fail(400, { error: 'credentials' });
     }
 
-    if (typeof password !== 'string' || password.length < 8) {
+    if (typeof password !== 'string' || password.length < 6) {
       return fail(400, { error: 'credentials' });
     }
 
@@ -80,6 +80,7 @@ export const actions: Actions = {
 
     throw redirect(302, '/');
   },
+
   async twofactor({ cookies, request }) {
     if (!cookies.get('2fa')) return fail(400, { error: 'credentials' });
 
