@@ -23,6 +23,7 @@ export const load: PageServerLoad = async ({ params, parent }) => {
       category: {
         select: {
           id: true,
+          name: true,
         },
       },
       seller: {

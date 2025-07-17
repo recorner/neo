@@ -14,6 +14,7 @@ export const load: PageServerLoad = async ({ params }) => {
         id: true,
         name: true,
         description: true,
+        shortDesc: true,
         price: true,
         stock: true,
         type: true,

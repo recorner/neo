@@ -18,6 +18,8 @@
   import IconifyIcon from '@iconify/svelte';
   import IconPreloader from '$lib/components/IconPreloader.svelte';
   import QuickIcon from '$lib/components/QuickIcon.svelte';
+  import CartDropdown from '$lib/components/CartDropdown.svelte';
+  import { cartTotals, cart } from '$lib/stores/cart';
   import type { LayoutServerData } from './$types';
   import classnames from 'classnames';
   import { browser } from '$app/environment';
@@ -28,6 +30,11 @@
   let isMobile = false;
   let currentTime = '';
   let timeInterval: any;
+
+  // Initialize cart from server data
+  $: if (browser && data.cart) {
+    cart.initFromServer(data.cart);
+  }
 
   // Russian time zone (Moscow)
   const updateRussianTime = () => {
@@ -85,8 +92,8 @@
 
 <aside
   class={classnames('fixed h-screen left-0 px-2 py-6 bg-neutral-850 shadow-md z-40 overflow-y-auto transition-transform duration-300', {
-    'w-64': !mobileMenu,
-    'w-20': mobileMenu,
+    'w-64': !mobileMenu || (mobileMenu && isMobile),
+    'w-20': mobileMenu && !isMobile,
     'mobile': mobileMenu,
     '-translate-x-full': isMobile && !mobileMenu,
     'translate-x-0': !isMobile || mobileMenu
@@ -165,16 +172,16 @@
   </nav>
 </aside>
 
-<div class={classnames('transition-all duration-300', {
-  'md:pl-64': !mobileMenu,
-  'md:pl-20': mobileMenu,
-  'pl-0': true
+<div class={classnames('min-h-screen transition-all duration-300', {
+  'md:pl-64': !mobileMenu && !isMobile,
+  'md:pl-20': mobileMenu && !isMobile,
+  'pl-0': isMobile
 })}>
-  <div class="bg-neutral-800/25 p-3 flex items-center justify-between gap-2 relative z-30">
+  <div class="bg-neutral-800/25 p-3 flex items-center justify-between gap-2 relative z-30 w-full">
     <div class="flex items-center gap-2">
       <button 
         type="button" 
-        class="link md:hidden" 
+        class="link md:hidden flex items-center justify-center p-2" 
         on:click={() => (mobileMenu = !mobileMenu)}
       >
         <QuickIcon icon="material-symbols:menu" className="icon text-neutral-300" />
@@ -188,9 +195,9 @@
       </div>
     </div>
     
-    <div class="flex gap-1 flex-wrap items-center min-w-0">
+    <div class="flex gap-1 items-center min-w-0 flex-shrink">
       <!-- Country Flags - Hide on small screens -->
-      <div class="hidden lg:flex gap-1">
+      <div class="hidden lg:flex gap-1 flex-shrink-0">
         <button class="p-1 hover:bg-neutral-800 rounded transition" title="Russian Time Zone">
           🇷🇺
         </button>
@@ -218,15 +225,12 @@
       </a>
       
       <!-- Cart -->
-      <a href="/cart" class="link group-focus-within:bg-neutral-800">
-        <span class="text-xs">{data.cart.reduce((acc, cur) => acc + cur.quantity, 0)}</span>
-        <IconifyIcon icon="material-symbols:shopping-cart" class="icon text-orange-400" />
-      </a>
+      <CartDropdown />
       
       <!-- User menu with truncated username -->
-      <div class="relative group min-w-0">
-        <button class="link group-focus-within:bg-neutral-800 min-w-0">
-          <span class="truncate max-w-20 sm:max-w-24 md:max-w-32" title={data.user.username}>
+      <div class="relative group min-w-0 flex-shrink">
+        <button class="link group-focus-within:bg-neutral-800 min-w-0 flex-shrink">
+          <span class="truncate max-w-16 sm:max-w-20 md:max-w-32 lg:max-w-40" title={data.user.username}>
             {data.user.username}
           </span>
           <QuickIcon icon="material-symbols:account-circle" className="icon text-blue-400 flex-shrink-0" />
@@ -251,10 +255,19 @@
 
 <style>
   .link {
-    @apply px-3 py-2 hover:bg-neutral-800 transition-all duration-200 rounded-lg flex items-center gap-3 text-sm relative overflow-hidden;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
   }
   
   .link:hover {
+    background-color: rgb(38 38 38);
     transform: translateX(2px);
   }
   
@@ -276,29 +289,41 @@
   }
 
   .divider {
-    @apply flex items-center gap-2 py-2 px-3;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
   }
 
   .divider > span {
-    @apply text-xs text-neutral-400 uppercase font-medium tracking-wider;
+    font-size: 0.75rem;
+    color: rgb(163 163 163);
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.05em;
   }
 
   .mobile > nav > .divider > span,
   .mobile > nav > .divider > hr:last-child,
   .mobile > nav > a > span {
-    @apply hidden;
+    display: none;
   }
 
   :global(.mobile > nav > a > .icon) {
-    @apply w-6 h-6 mx-auto;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0 auto;
   }
 
   .divider > hr {
-    @apply border-neutral-700 w-full;
+    border-color: rgb(64 64 64);
+    width: 100%;
   }
 
   :global(.icon) {
-    @apply w-4 h-4 transition-colors;
+    width: 1rem;
+    height: 1rem;
+    transition: color 0.2s;
   }
   
   /* Enhance the top bar */
@@ -315,7 +340,39 @@
   /* Mobile menu improvements */
   @media (max-width: 768px) {
     .mobile .link {
-      @apply justify-center;
+      justify-content: flex-start;
+      padding: 1rem;
+    }
+    
+    .mobile .link:hover {
+      transform: none;
+    }
+  }
+
+  /* Desktop collapsed sidebar - only hide text when width is w-20 */
+  .mobile.w-20 > nav > .divider > span,
+  .mobile.w-20 > nav > .divider > hr:last-child,
+  .mobile.w-20 > nav > a > span {
+    display: none;
+  }
+
+  :global(.mobile.w-20 > nav > a > .icon) {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0 auto;
+  }
+
+  /* Mobile expanded sidebar - show text and normal icons */
+  @media (max-width: 768px) {
+    .mobile.w-64 > nav > .divider > span,
+    .mobile.w-64 > nav > a > span {
+      display: block;
+    }
+    
+    :global(.mobile.w-64 > nav > a > .icon) {
+      width: 1rem;
+      height: 1rem;
+      margin: 0;
     }
   }
 </style>
