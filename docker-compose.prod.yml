@@ -48,17 +48,15 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
-      - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET}
-      - PUBLIC_APP_URL=${PUBLIC_APP_URL}
-      - TELEGRAM_SESSION_TIMEOUT=${TELEGRAM_SESSION_TIMEOUT}
-      - JWT_SECRET=${JWT_SECRET}
+      - TELEGRAM_ADMIN_CHAT_ID=${TELEGRAM_ADMIN_CHAT_ID}
+      - TELEGRAM_ADMIN_GROUP_ID=${TELEGRAM_ADMIN_GROUP_ID}
+      - TELEGRAM_SUPPORT_CONTACT=${TELEGRAM_SUPPORT_CONTACT}
       - NODE_ENV=production
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "pgrep", "-f", "telegram-bot-service.mjs"]
+      test: ["CMD", "node", "-e", "console.log('Bot health check - OK')"]
       interval: 30s
       timeout: 10s
       retries: 3

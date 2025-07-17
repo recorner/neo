@@ -10,7 +10,14 @@ export const error = {
   '--toastBarBackground': '#9B2C2C',
 };
 
+export const warning = {
+  '--toastColor': 'black',
+  '--toastBackground': 'rgba(251,191,36,0.9)',
+  '--toastBarBackground': '#D97706',
+};
+
 export default {
   success,
   error,
+  warning,
 };

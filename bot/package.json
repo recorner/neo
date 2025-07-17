@@ -1,0 +1,30 @@
+{
+  "name": "neo-telegram-bot",
+  "version": "1.0.0",
+  "description": "Standalone Telegram bot service for Neo Shop",
+  "type": "module",
+  "main": "telegram-bot.js",
+  "scripts": {
+    "start": "node telegram-bot.js",
+    "dev": "node --watch telegram-bot.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
+    "dotenv": "^16.3.1",
+    "@prisma/client": "^5.7.1",
+    "prisma": "^5.7.1",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "neo-shop",
+    "notifications"
+  ],
+  "author": "Neo Shop Team",
+  "license": "MIT"
+}

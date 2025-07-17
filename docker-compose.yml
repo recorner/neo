@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   app:
     restart: unless-stopped
@@ -8,20 +9,38 @@ services:
     expose:
       - 3000
     environment:
-      - DATABASE_URL=postgres://doadmin:AVNS_3b1YnGoB1Y5mAysdpOx@postgres:5432/defaultdb
+      - DATABASE_URL=${DATABASE_URL}
       - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
       - UPLOAD_PREFIX=/uploads
       - NOWPAYMENTS_API_KEY=${NOWPAYMENTS_API_KEY}
-      - BODY_SIZE_LIMIT=10485760
+      - BODY_SIZE_LIMIT=${BODY_SIZE_LIMIT}
       - PROTOCOL_HEADER=x-forwarded-proto
       - HOST_HEADER=x-forwarded-host
       - JWT_SECRET=${JWT_SECRET}
+      - BOT_SERVICE_URL=http://telegram-bot:3001
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_ADMIN_CHAT_ID=${TELEGRAM_ADMIN_CHAT_ID}
+      - TELEGRAM_ADMIN_GROUP_ID=${TELEGRAM_ADMIN_GROUP_ID}
     depends_on:
       - postgres
       - minio
+      - telegram-bot
 
+  telegram-bot:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+    depends_on:
+      - postgres
+    networks:
+      - default
 
   haproxy:
     build:
@@ -34,17 +53,20 @@ services:
     depends_on:
       - app
       - minio
+      - netdata
+
   postgres:
     image: postgres:alpine
     restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=doadmin
-      - POSTGRES_PASSWORD=AVNS_3b1YnGoB1Y5mAysdpOx
-      - POSTGRES_DB=defaultdb
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - 5433:5432
+
   minio:
     image: minio/minio
     restart: unless-stopped
@@ -60,7 +82,42 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
 
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    expose:
+      - 6379
+    volumes:
+      - redis_data:/data
+
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    restart: unless-stopped
+    ports:
+      - 19999:19999
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor=unconfined
+    volumes:
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+
 volumes:
   postgres_data:
   minio_data:
   minio_config:
+  redis_data:
+  netdataconfig:
+  netdatalib:
+  netdatacache:

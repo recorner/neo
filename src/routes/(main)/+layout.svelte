@@ -149,6 +149,10 @@
         <IconifyIcon icon="material-symbols:group" class="icon text-pink-400" />
         <span>Users</span>
       </a>
+      <a href="/admin/deposits" class="link">
+        <IconifyIcon icon="material-symbols:account-balance-wallet" class="icon text-green-400" />
+        <span>Deposit History</span>
+      </a>
       <a href="/admin/payouts" class="link">
         <IconifyIcon icon="material-symbols:payments" class="icon text-emerald-400" />
         <span>Payouts</span>
@@ -184,9 +188,9 @@
       </div>
     </div>
     
-    <div class="flex gap-1 flex-wrap items-center">
-      <!-- Country Flags -->
-      <div class="hidden md:flex gap-1">
+    <div class="flex gap-1 flex-wrap items-center min-w-0">
+      <!-- Country Flags - Hide on small screens -->
+      <div class="hidden lg:flex gap-1">
         <button class="p-1 hover:bg-neutral-800 rounded transition" title="Russian Time Zone">
           🇷🇺
         </button>
@@ -195,7 +199,7 @@
         </button>
       </div>
       
-      <!-- Telegram Support -->
+      <!-- Telegram Support - Hide text on smaller screens -->
       <a 
         href="https://t.me/{import.meta.env.VITE_TELEGRAM_SUPPORT || 'support'}" 
         target="_blank" 
@@ -203,26 +207,36 @@
         title="Contact Support"
       >
         <IconifyIcon icon="ic:baseline-telegram" class="icon text-white" />
-        <span class="hidden lg:inline">Support</span>
+        <span class="hidden xl:inline">Support</span>
       </a>
       
-      <a href="/balance" class="link text-xs sm:text-sm">
+      <!-- Balance - More responsive -->
+      <a href="/balance" class="link text-xs">
         <IconifyIcon icon="material-symbols:account-balance-wallet" class="icon text-green-400" />
-        <span class="hidden sm:inline">${data.user.balance.toFixed(2)}</span>
-        <span class="sm:hidden">${data.user.balance.toFixed(0)}</span>
+        <span class="hidden md:inline">${data.user.balance.toFixed(2)}</span>
+        <span class="md:hidden">${data.user.balance.toFixed(0)}</span>
       </a>
+      
+      <!-- Cart -->
       <a href="/cart" class="link group-focus-within:bg-neutral-800">
-        <span class="text-xs sm:text-sm">{data.cart.reduce((acc, cur) => acc + cur.quantity, 0)}</span>
+        <span class="text-xs">{data.cart.reduce((acc, cur) => acc + cur.quantity, 0)}</span>
         <IconifyIcon icon="material-symbols:shopping-cart" class="icon text-orange-400" />
       </a>
-      <div class="relative group">
-        <button class="link group-focus-within:bg-neutral-800">
-          <span>{data.user.username}</span>
-          <QuickIcon icon="material-symbols:account-circle" className="icon text-blue-400" />
+      
+      <!-- User menu with truncated username -->
+      <div class="relative group min-w-0">
+        <button class="link group-focus-within:bg-neutral-800 min-w-0">
+          <span class="truncate max-w-20 sm:max-w-24 md:max-w-32" title={data.user.username}>
+            {data.user.username}
+          </span>
+          <QuickIcon icon="material-symbols:account-circle" className="icon text-blue-400 flex-shrink-0" />
         </button>
         <div
           class="absolute z-20 top-10 right-0 w-52 bg-neutral-850 shadow-md rounded-lg px-3 py-2 origin-top-right scale-0 group-focus-within:scale-100 transition opacity-0 group-focus-within:opacity-100"
         >
+          <div class="text-xs text-neutral-400 mb-2 truncate" title={data.user.username}>
+            {data.user.username}
+          </div>
           <a href="/account" class="link">Settings</a>
           <a href="https://t.me/{import.meta.env.VITE_ADMIN_USERNAME || 'admin'}" target="_blank" class="link">Contact Admin</a>
           <a href="/auth/logout" class="link">Logout</a>

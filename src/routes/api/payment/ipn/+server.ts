@@ -1,6 +1,8 @@
 import prisma from '$lib/prisma';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import crypto from 'crypto';
+import { telegramNotifications } from '$lib/telegram-notifications';
+import { emitPaymentConfirmed, emitPaymentFailed } from '$lib/paymentEvents';
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
   // Verify IPN secret is configured
@@ -63,10 +65,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
       await prisma.$transaction([
         prisma.topUp.update({
           where: { id: topUp.id },
-          data: { 
-            completed: true,
-            status: 'confirmed'
-          },
+          data: { completed: true },
         }),
         prisma.user.update({
           where: { id: topUp.userId },
@@ -82,8 +81,24 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
         amount: topUp.amount,
       });
 
+      // Send systematic notifications
+      await telegramNotifications.notifyPaymentConfirmed({
+        id: body.payment_id ? body.payment_id.toString() : body.invoice_id,
+        amount: topUp.amount,
+        currency: 'USD', // We store in USD
+        userId: topUp.userId
+      });
+
+      // Send personal Telegram notification if queued
+      await telegramNotifications.sendPaymentConfirmation(body.payment_id?.toString() || body.invoice_id);
+
       // TODO: Emit event for real-time updates (WebSocket/Redis pub-sub)
       // This can be used for Telegram bot integration in the future
+      emitPaymentConfirmed(
+        topUp.userId, 
+        body.payment_id ? body.payment_id.toString() : body.invoice_id,
+        topUp.amount
+      );
     }
 
     // Handle other payment statuses
@@ -94,19 +109,36 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
         reason: body.outcome?.reason || 'N/A',
       });
 
-      // Update the payment status in database
-      const paymentId = body.payment_id ? body.payment_id.toString() : body.invoice_id;
-      await prisma.topUp.updateMany({
+      // Try to find the topUp to emit failure event and send notifications
+      const topUp = await prisma.topUp.findUnique({
         where: {
-          reference: paymentId,
-          completed: false, // Only update if not already completed
+          reference: body.payment_id ? body.payment_id.toString() : body.invoice_id,
         },
-        data: {
-          status: body.payment_status,
+        select: {
+          userId: true,
+          amount: true,
         },
       });
 
-      console.log(`Updated payment ${paymentId} status to ${body.payment_status}`);
+      if (topUp) {
+        // Send systematic failure notifications
+        await telegramNotifications.notifyPaymentFailed({
+          id: body.payment_id ? body.payment_id.toString() : body.invoice_id,
+          amount: topUp.amount,
+          currency: 'USD',
+          userId: topUp.userId,
+          status: body.payment_status,
+          reason: body.outcome?.reason
+        });
+
+        // Emit failure event for real-time updates
+        emitPaymentFailed(
+          topUp.userId,
+          body.payment_id ? body.payment_id.toString() : body.invoice_id,
+          topUp.amount,
+          body.payment_status
+        );
+      }
     }
 
     return json({ ok: true });

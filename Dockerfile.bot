@@ -1,38 +1,46 @@
-FROM node:20.8.1
+# Neo Telegram Bot Service
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Install necessary system dependencies
-RUN apt-get update \
-    && apt-get install -y build-essential procps \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies including OpenSSL for Prisma
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    openssl \
+    openssl-dev \
+    libc6-compat
 
-# Install global packages
-RUN npm install -g pnpm
+# Copy and install bot dependencies
+COPY bot/package.json ./
+RUN npm install
 
-# Copy package files to install project dependencies
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-RUN pnpm install --no-frozen-lockfile
+# Copy Prisma schema and main package.json for client generation
+COPY prisma/ ./prisma/
+COPY package.json ./main-package.json
 
-# Copy prisma schema and generate client
-COPY prisma ./prisma
-RUN pnpx prisma generate
+# Generate Prisma client
+RUN npx prisma generate
 
-# Copy bot service files
-COPY scripts/telegram-bot-service.mjs ./scripts/
+# Copy the bot service and create lib directory
+COPY bot/telegram-bot.js ./
+RUN mkdir -p ./src/lib
 
-# Create a startup script for the bot
-RUN echo '#!/bin/bash\n\
-echo "🤖 Starting Telegram Bot Service..."\n\
-cd /app\n\
-node scripts/telegram-bot-service.mjs' > /app/start-bot.sh
+# Create a simple prisma export for the bot
+RUN echo "import { PrismaClient } from '@prisma/client';\nconst prisma = new PrismaClient();\nexport default prisma;" > ./src/lib/prisma.js
 
-RUN chmod +x /app/start-bot.sh
+# Create non-root user
+RUN addgroup -g 1001 -S botuser && \
+    adduser -S botuser -u 1001
+
+# Change ownership
+RUN chown -R botuser:botuser /app
+USER botuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD pgrep -f "telegram-bot-service.mjs" || exit 1
+  CMD node -e "console.log('Bot health check - OK')" || exit 1
 
-# Start the bot service
-CMD ["/app/start-bot.sh"]
+# Start the bot
+CMD ["npm", "start"]

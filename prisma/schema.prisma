@@ -98,16 +98,27 @@ enum OrderStatus {
   REFUNDED
 }
 
+enum PaymentStatus {
+  PENDING
+  WAITING
+  CONFIRMED
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
 model TopUp {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  userId    Int
   amount    Float
-  reference String  @unique
-  completed Boolean @default(false)
-
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
-
+  reference String?  @unique
+  completed Boolean  @default(false)
+  status    String   @default("pending") // pending, confirmed, failed, expired, waiting, refunded
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentNotification PaymentNotification?
+
+  @@map("top_ups")
 }
 
 enum PayoutStatus {
@@ -282,4 +293,21 @@ model TelegramSession {
   @@index([chatId])
   @@index([sessionId])
   @@index([loginCode])
+}
+
+// Payment Notifications
+model PaymentNotification {
+  id          Int      @id @default(autoincrement())
+  
+  topUp       TopUp    @relation(fields: [topUpId], references: [id])
+  topUpId     Int      @unique
+  
+  telegramUsername String?
+  notificationSent Boolean @default(false)
+  sentAt           DateTime?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([telegramUsername])
+  @@index([notificationSent])
 }

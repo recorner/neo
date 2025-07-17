@@ -1,0 +1,8 @@
+#!/bin/bash
+THRESHOLD=60 LOG_FILE="/var/log/.docker-autopruner.log" exec >> "$LOG_FILE" 2>&1 USAGE=$(df 
+/ | grep / | awk '{print $5}' | sed 's/%//') echo "[$(date)] Disk usage is at ${USAGE}%" if 
+[ "$USAGE" -ge "$THRESHOLD" ]; then
+  echo "[$(date)] Threshold exceeded. Cleaning Docker garbage..." docker container prune -f 
+  docker image prune -a -f docker volume prune -f docker builder prune -a -f docker network 
+  prune -f echo "[$(date)] Cleanup complete."
+else echo "[$(date)] Disk usage below threshold. Skipping cleanup." fi
