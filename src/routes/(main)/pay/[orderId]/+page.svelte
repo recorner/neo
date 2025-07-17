@@ -114,7 +114,7 @@
         clearInterval(statusCheckInterval);
         toast.push('Payment status check timeout', { theme: toastThemes.warning });
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
   }
 
   async function checkPaymentStatus() {
