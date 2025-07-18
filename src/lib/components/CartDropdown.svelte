@@ -12,11 +12,11 @@
   $: totals = $cartTotals;
 
   function updateQuantity(productId: number, quantity: number) {
-    cart.updateQuantity(productId, quantity);
+    cart.updateQuantity(productId, quantity, { showToast: true });
   }
 
   function removeItem(productId: number) {
-    cart.removeItem(productId);
+    cart.removeItem(productId, { showToast: true });
   }
 
   function handleCheckout() {

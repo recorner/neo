@@ -208,7 +208,7 @@
       
       <!-- Telegram Support - Hide text on smaller screens -->
       <a 
-        href="https://t.me/{import.meta.env.VITE_TELEGRAM_SUPPORT || 'support'}" 
+        href="https://t.me/clauneck4" 
         target="_blank" 
         class="link text-xs bg-blue-600 hover:bg-blue-700 transition"
         title="Contact Support"
@@ -242,7 +242,7 @@
             {data.user.username}
           </div>
           <a href="/account" class="link">Settings</a>
-          <a href="https://t.me/{import.meta.env.VITE_ADMIN_USERNAME || 'admin'}" target="_blank" class="link">Contact Admin</a>
+          <a href="https://t.me/clauneck4" target="_blank" class="link">Contact Admin</a>
           <a href="/auth/logout" class="link">Logout</a>
         </div>
       </div>

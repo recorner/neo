@@ -1,6 +1,7 @@
 <script lang="ts">
   import { applyAction, enhance } from '$app/forms';
   import { goto, invalidateAll } from '$app/navigation';
+  import { cart } from '$lib/stores/cart';
   import toastThemes from '$lib/toastThemes';
   import { AlertTriangle, ShoppingCart, Trash, Plus, Minus, CreditCard, ArrowLeft } from '@steeze-ui/feather-icons';
   import { Icon } from '@steeze-ui/svelte-icon';
@@ -104,9 +105,17 @@
             }
           } else if (result.type === 'success') {
             await invalidateAll();
+            
+            // Clear cart after successful checkout
+            cart.clear({ 
+              showToast: false // Don't show cart clear toast since we're showing order success
+            });
+            
             toast.push('Order placed successfully!', {
               theme: toastThemes.success,
             });
+            
+            // Navigate to orders page
             goto('/orders');
           }
         };
@@ -183,7 +192,7 @@
                           min={1}
                           max={typeof item.stock === 'number' ? item.stock : 1}
                           class="bg-transparent text-center w-12 font-mono text-sm"
-                          on:change={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                          on:change={(e) => updateQuantity(item.id, parseInt((e.target as HTMLInputElement).value) || 1)}
                         />
                         
                         <button

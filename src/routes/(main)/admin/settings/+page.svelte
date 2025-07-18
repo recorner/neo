@@ -21,21 +21,43 @@
       <h2 class="font-bold">Categories</h2>
       <button
         class="btn w-max"
-        on:click={() => {
-          fetch('/admin/settings/updateCategories', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(categories),
-          }).then(async (res) => {
+        on:click={async () => {
+          try {
+            const res = await fetch('/admin/settings/updateCategories', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(categories),
+            });
+            
+            const result = await res.json();
+            
             if (res.ok) {
-              toast.push('Categories updated', {
+              toast.push('Categories updated successfully', {
                 theme: toastThemes.success,
               });
               await invalidateAll();
+            } else {
+              // Handle specific error about categories with products
+              if (result.categoriesWithProducts) {
+                const categoryNames = result.categoriesWithProducts
+                  .map(cat => `"${cat.name}" (${cat.productCount} products)`)
+                  .join(', ');
+                toast.push(`Cannot delete categories with products: ${categoryNames}. Please move or delete the products first.`, {
+                  theme: toastThemes.error,
+                });
+              } else {
+                toast.push(result.error || 'Failed to update categories', {
+                  theme: toastThemes.error,
+                });
+              }
             }
-          });
+          } catch (error) {
+            toast.push('An error occurred while updating categories', {
+              theme: toastThemes.error,
+            });
+          }
         }}
       >
         Save

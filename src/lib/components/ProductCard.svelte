@@ -34,6 +34,10 @@
       price: product.price,
       stock: product.stock,
       type: product.type
+    }, {
+      showToast: true,
+      preventDuplicates: false,
+      toastMessage: `Added ${product.name} to cart`
     });
   }
 

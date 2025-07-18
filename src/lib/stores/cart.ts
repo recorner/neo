@@ -1,5 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
+import { toast } from '@zerodevx/svelte-toast';
+import toastThemes from '$lib/toastThemes';
 
 export interface CartItem {
   id: number;
@@ -16,39 +18,119 @@ export interface CartItem {
 
 // Initialize cart from localStorage or empty array
 function createCartStore() {
-  const initialValue: CartItem[] = browser ? JSON.parse(localStorage.getItem('cart') || '[]') : [];
+  let initialValue: CartItem[] = [];
+  
+  if (browser) {
+    // Try localStorage first, then cookies as fallback
+    const localCart = localStorage.getItem('cart');
+    if (localCart) {
+      try {
+        initialValue = JSON.parse(localCart);
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage:', e);
+        initialValue = [];
+      }
+    } else {
+      // Check cookies as fallback
+      const cookieCart = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('cart='))
+        ?.split('=')[1];
+      
+      if (cookieCart) {
+        try {
+          initialValue = JSON.parse(decodeURIComponent(cookieCart));
+        } catch (e) {
+          console.error('Failed to parse cart from cookies:', e);
+          initialValue = [];
+        }
+      }
+    }
+  }
+  
   const { subscribe, set, update } = writable<CartItem[]>(initialValue);
 
   return {
     subscribe,
     set,
     update,
-    addItem: (productId: number, quantity: number = 1, productData?: Partial<CartItem>) => {
+    addItem: (productId: number, quantity: number = 1, productData?: Partial<CartItem>, options?: { 
+      showToast?: boolean; 
+      preventDuplicates?: boolean;
+      toastMessage?: string;
+    }) => {
+      const { showToast = true, preventDuplicates = false, toastMessage } = options || {};
+      
+      let wasAdded = false;
+      let wasUpdated = false;
+      let productName = productData?.name || `Product #${productId}`;
+      
       update(cart => {
         const existingIndex = cart.findIndex(item => item.id === productId);
+        
         if (existingIndex >= 0) {
-          cart[existingIndex].quantity += quantity;
+          if (preventDuplicates) {
+            // Don't add if item already exists and duplicates are prevented
+            if (showToast) {
+              toast.push(`${productName} is already in your cart`, {
+                theme: toastThemes.error
+              });
+            }
+            return cart;
+          } else {
+            // Update quantity
+            cart[existingIndex].quantity += quantity;
+            wasUpdated = true;
+          }
+          
           // Update product data if provided
           if (productData) {
             cart[existingIndex] = { ...cart[existingIndex], ...productData };
           }
         } else {
+          // Add new item
           cart.push({ 
             id: productId, 
             quantity,
             ...productData
           });
+          wasAdded = true;
         }
+        
         // Sync to cookies for server-side access
         if (browser) {
           document.cookie = `cart=${JSON.stringify(cart)}; path=/; max-age=2592000`; // 30 days
         }
+        
+        // Show success toast
+        if (showToast && (wasAdded || wasUpdated)) {
+          const message = toastMessage || 
+            (wasAdded ? `${productName} added to cart` : 
+             `${productName} quantity updated in cart`);
+          
+          toast.push(message, {
+            theme: toastThemes.success
+          });
+        }
+        
         return cart;
       });
     },
-    removeItem: (productId: number) => {
+    removeItem: (productId: number, options?: { showToast?: boolean }) => {
+      const { showToast = true } = options || {};
+      
       update(cart => {
+        const itemToRemove = cart.find(item => item.id === productId);
         const newCart = cart.filter(item => item.id !== productId);
+        
+        // Show toast notification
+        if (showToast && itemToRemove) {
+          const productName = itemToRemove.name || `Product #${productId}`;
+          toast.push(`${productName} removed from cart`, {
+            theme: toastThemes.success
+          });
+        }
+        
         // Sync to cookies
         if (browser) {
           document.cookie = `cart=${JSON.stringify(newCart)}; path=/; max-age=2592000`;
@@ -56,14 +138,28 @@ function createCartStore() {
         return newCart;
       });
     },
-    updateQuantity: (productId: number, quantity: number) => {
+    updateQuantity: (productId: number, quantity: number, options?: { showToast?: boolean }) => {
+      const { showToast = false } = options || {};
+      
       update(cart => {
         const existingIndex = cart.findIndex(item => item.id === productId);
         if (existingIndex >= 0) {
+          const productName = cart[existingIndex].name || `Product #${productId}`;
+          
           if (quantity <= 0) {
             cart.splice(existingIndex, 1);
+            if (showToast) {
+              toast.push(`${productName} removed from cart`, {
+                theme: toastThemes.success
+              });
+            }
           } else {
             cart[existingIndex].quantity = quantity;
+            if (showToast) {
+              toast.push(`${productName} quantity updated`, {
+                theme: toastThemes.success
+              });
+            }
           }
         }
         // Sync to cookies
@@ -73,10 +169,44 @@ function createCartStore() {
         return cart;
       });
     },
-    clear: () => {
+    clear: (options?: { showToast?: boolean; toastMessage?: string }) => {
+      const { showToast = false, toastMessage = 'Cart cleared' } = options || {};
+      
       set([]);
       if (browser) {
+        // Clear both localStorage and cookies
+        localStorage.setItem('cart', JSON.stringify([]));
         document.cookie = `cart=[]; path=/; max-age=2592000`;
+      }
+      
+      if (showToast) {
+        toast.push(toastMessage, {
+          theme: toastThemes.success
+        });
+      }
+    },
+    syncFromCookies: () => {
+      if (browser) {
+        // Force sync from cookies (useful after server-side updates)
+        const cookieCart = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('cart='))
+          ?.split('=')[1];
+        
+        if (cookieCart) {
+          try {
+            const parsedCart = JSON.parse(decodeURIComponent(cookieCart));
+            set(parsedCart);
+            localStorage.setItem('cart', JSON.stringify(parsedCart));
+          } catch (e) {
+            console.error('Failed to parse cart from cookies:', e);
+            set([]);
+            localStorage.setItem('cart', JSON.stringify([]));
+          }
+        } else {
+          set([]);
+          localStorage.setItem('cart', JSON.stringify([]));
+        }
       }
     },
     // Sync cart with server data
@@ -101,16 +231,15 @@ function createCartStore() {
     // Initialize from server data (for SSR)
     initFromServer: (serverCart: { id: number; quantity: number }[]) => {
       if (browser) {
+        // Only sync if local cart is empty or server has newer data
         const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
-        // Merge server cart with local cart, preferring local cart
-        const mergedCart = [...localCart];
-        serverCart.forEach(serverItem => {
-          const existingIndex = mergedCart.findIndex(item => item.id === serverItem.id);
-          if (existingIndex === -1) {
-            mergedCart.push(serverItem);
-          }
-        });
-        set(mergedCart);
+        if (localCart.length === 0 && serverCart.length > 0) {
+          set(serverCart);
+          localStorage.setItem('cart', JSON.stringify(serverCart));
+        } else {
+          // Use local cart as it's more recent
+          set(localCart);
+        }
       } else {
         set(serverCart);
       }

@@ -38,10 +38,10 @@
       price: data.product.price,
       stock: data.product.stock,
       type: data.product.type
-    });
-    
-    toast.push(`Added ${quantity}x ${data.product.name} to cart`, {
-      theme: toastThemes.success,
+    }, {
+      showToast: true,
+      preventDuplicates: false, // Allow multiple quantities
+      toastMessage: `Added ${quantity}x ${data.product.name} to cart`
     });
     
     // Reset quantity after adding

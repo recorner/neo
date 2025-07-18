@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,53 +7,213 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id               Int               @id @default(autoincrement())
+  username         String            @unique
+  password         String
+  userIcon         String?
+  md2faCodes       String[]
+  createdAt        DateTime          @default(now())
+  role             Role[]
+  balance          Float             @default(0)
+  twoFactorSecret  String?
+  telegram         String?
+  telegramId       String?           @unique
+  telegramLinked   Boolean           @default(false)
+  announcements    Announcement[]
+  cardChecks       CardCheck[]       @relation("UserChecks")
+  checkedCards     CreditCard[]      @relation("CheckedCards")
+  sellerCards      CreditCard[]      @relation("SellerCards")
+  orders           Order[]
+  payouts          Payout[]
+  products         Product[]
+  telegramSessions TelegramSession[]
+  topUps           TopUp[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  order    Int       @default(autoincrement())
+  image    String?
+  products Product[]
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  type        ProductType   @default(DOWNLOAD)
+  tags        ProductTags[] @default([])
+  categoryId  Int
+  userId      Int
+  createdAt   DateTime      @default(now())
+  stock       String        @default("")
+  shortDesc   String        @default("")
+  cartEntries CartEntry[]
+  category    Category      @relation(fields: [categoryId], references: [id])
+  seller      User          @relation(fields: [userId], references: [id])
+}
+
+model TopUp {
+  id                  Int                  @id @default(autoincrement())
+  userId              Int
+  amount              Float
+  reference           String?              @unique
+  completed           Boolean              @default(false)
+  status              String               @default("pending")
+  createdAt           DateTime             @default(now())
+  paymentNotification PaymentNotification?
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("top_ups")
+}
+
+model Payout {
+  id             Int          @id @default(autoincrement())
+  amount         Float
+  status         PayoutStatus @default(PENDING)
+  rejectedReason String?
+  userId         Int
+  address        String
+  createdAt      DateTime     @default(now())
+  paidAt         DateTime?
+  user           User         @relation(fields: [userId], references: [id])
+}
+
+model CartEntry {
+  id        Int      @id @default(autoincrement())
+  quantity  Int
+  productId Int
+  orderId   Int?
+  delivered String?
+  createdAt DateTime @default(now())
+  order     Order?   @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  status    OrderStatus @default(PENDING)
+  userId    Int
+  createdAt DateTime    @default(now())
+  cart      CartEntry[]
+  buyer     User        @relation(fields: [userId], references: [id])
+}
+
+model Settings {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
+
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  userId    Int
+  poster    User     @relation(fields: [userId], references: [id])
+}
+
+model CreditCard {
+  id           Int         @id @default(autoincrement())
+  cardNumber   String
+  expMonth     String
+  expYear      String
+  cvv          String
+  fullName     String?
+  firstName    String?
+  lastName     String?
+  address      String?
+  city         String?
+  state        String?
+  zip          String?
+  country      String?
+  phone        String?
+  email        String?
+  ssn          String?
+  dob          String?
+  mmn          String?
+  dl           String?
+  sortCode     String?
+  atmPin       String?
+  carrierPin   String?
+  cardBalance  String?
+  userAgent    String?
+  ip           String?
+  price        Float       @default(0.0)
+  isRefundable Boolean     @default(false)
+  isDiscounted Boolean     @default(false)
+  isChecked    Boolean     @default(false)
+  status       CardStatus  @default(UNCHECKED)
+  sellerId     Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  checkedAt    DateTime?
+  checkedById  Int?
+  checks       CardCheck[]
+  checkedBy    User?       @relation("CheckedCards", fields: [checkedById], references: [id])
+  seller       User        @relation("SellerCards", fields: [sellerId], references: [id])
+
+  @@index([cardNumber])
+  @@index([zip])
+  @@index([country])
+  @@index([status])
+  @@index([sellerId])
+  @@index([price])
+  @@index([isDiscounted])
+}
+
+model CardCheck {
+  id        Int        @id @default(autoincrement())
+  cardId    Int
+  checkerId Int
+  result    CardStatus
+  cost      Float      @default(0.5)
+  createdAt DateTime   @default(now())
+  card      CreditCard @relation(fields: [cardId], references: [id])
+  checker   User       @relation("UserChecks", fields: [checkerId], references: [id])
+
+  @@index([checkerId])
+  @@index([cardId])
+}
+
+model TelegramSession {
+  id        String   @id @default(uuid())
+  chatId    String
+  sessionId String   @unique
+  loginCode String?
+  isActive  Boolean  @default(true)
+  expiresAt DateTime
+  userId    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([chatId])
+  @@index([sessionId])
+  @@index([loginCode])
+}
+
+model PaymentNotification {
+  id               Int       @id @default(autoincrement())
+  topUpId          Int       @unique
+  telegramUsername String?
+  notificationSent Boolean   @default(false)
+  sentAt           DateTime?
+  createdAt        DateTime  @default(now())
+  topUp            TopUp     @relation(fields: [topUpId], references: [id])
+
+  @@index([telegramUsername])
+  @@index([notificationSent])
+}
+
 enum Role {
   ADMIN
   SELLER
   BUYER
-}
-
-model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
-  balance  Float  @default(0)
-  userIcon        String?   // Add userIcon field
-  md2faCodes      String[]  // Add md2faCodes field
-
-  twoFactorSecret String?
-  telegram        String?
-  telegramId      String?   @unique // Telegram chat ID
-  telegramLinked  Boolean   @default(false)
-
-  createdAt DateTime @default(now())
-  role      Role[]
-
-  products Product[]
-
-  topUps        TopUp[]
-  orders        Order[]
-  payouts       Payout[]
-  announcements Announcement[]
-  
-  // Credit Card relationships
-  sellerCards   CreditCard[] @relation("SellerCards")
-  checkedCards  CreditCard[] @relation("CheckedCards")
-  cardChecks    CardCheck[]  @relation("UserChecks")
-  
-  // Telegram session management
-  telegramSessions TelegramSession[]
-}
-
-model Category {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  order Int @default(autoincrement())
-
-  image String?
-
-  products Product[]
 }
 
 enum ProductType {
@@ -66,28 +223,15 @@ enum ProductType {
 
 enum ProductTags {
   DELETED
-}
-
-model Product {
-  id          Int    @id @default(autoincrement())
-  name        String
-  description String
-  shortDesc   String @default("")
-  price       Float
-
-  stock String @default("")
-
-  type ProductType   @default(DOWNLOAD)
-  tags ProductTags[] @default([])
-
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
-
-  seller User @relation(fields: [userId], references: [id])
-  userId Int
-
-  createdAt   DateTime    @default(now())
-  cartEntries CartEntry[]
+  ENROLL
+  USA
+  COOKIE
+  SSN
+  OTP
+  ESIM
+  DEVICE
+  KYC
+  CORPORATE
 }
 
 enum OrderStatus {
@@ -107,207 +251,14 @@ enum PaymentStatus {
   REFUNDED
 }
 
-model TopUp {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  amount    Float
-  reference String?  @unique
-  completed Boolean  @default(false)
-  status    String   @default("pending") // pending, confirmed, failed, expired, waiting, refunded
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  paymentNotification PaymentNotification?
-
-  @@map("top_ups")
-}
-
 enum PayoutStatus {
   PENDING
   COMPLETED
   REJECTED
 }
 
-model Payout {
-  id      Int    @id @default(autoincrement())
-  amount  Float
-  address String
-
-  status         PayoutStatus @default(PENDING)
-  rejectedReason String?
-
-  createdAt DateTime  @default(now())
-  paidAt    DateTime?
-
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
-}
-
-model CartEntry {
-  id       Int @id @default(autoincrement())
-  quantity Int
-
-  delivered String?
-
-  product   Product @relation(fields: [productId], references: [id])
-  productId Int
-
-  order   Order? @relation(fields: [orderId], references: [id])
-  orderId Int?
-
-  createdAt DateTime @default(now())
-}
-
-model Order {
-  id     Int         @id @default(autoincrement())
-  status OrderStatus @default(PENDING)
-
-  buyer  User @relation(fields: [userId], references: [id])
-  userId Int
-
-  cart      CartEntry[]
-  createdAt DateTime    @default(now())
-}
-
-model Settings {
-  id    Int    @id @default(autoincrement())
-  key   String @unique
-  value String
-}
-
-model Announcement {
-  id    Int    @id @default(autoincrement())
-  title String
-  body  String
-
-  createdAt DateTime @default(now())
-  poster    User     @relation(fields: [userId], references: [id])
-  userId    Int
-}
-
-// Credit Card Management System Models
 enum CardStatus {
   UNCHECKED
   LIVE
   DEAD
-}
-
-model CreditCard {
-  id          Int      @id @default(autoincrement())
-  
-  // Core card data
-  cardNumber  String
-  expMonth    String   // MM format
-  expYear     String   // YY or YYYY format
-  cvv         String
-  
-  // Cardholder Information
-  fullName    String?
-  firstName   String?
-  lastName    String?
-  
-  // Address Information
-  address     String?
-  city        String?
-  state       String?
-  zip         String?
-  country     String?
-  
-  // Additional Information
-  phone       String?
-  email       String?
-  ssn         String?
-  dob         String?  // Date of birth
-  mmn         String?  // Mother's maiden name
-  dl          String?  // Driver's license
-  sortCode    String?
-  atmPin      String?
-  carrierPin  String?
-  cardBalance String?
-  userAgent   String?
-  ip          String?
-  
-  // System Information
-  price       Float    @default(0.0)
-  isRefundable Boolean @default(false)
-  isDiscounted Boolean @default(false)
-  isChecked   Boolean  @default(false)
-  status      CardStatus @default(UNCHECKED)
-  
-  // Relationships
-  seller      User     @relation("SellerCards", fields: [sellerId], references: [id])
-  sellerId    Int
-  
-  // Card checks
-  checks      CardCheck[]
-  
-  // Tracking
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  checkedAt   DateTime?
-  checkedBy   User?    @relation("CheckedCards", fields: [checkedById], references: [id])
-  checkedById Int?
-  
-  // Indexing for performance
-  @@index([cardNumber])
-  @@index([zip])
-  @@index([country])
-  @@index([status])
-  @@index([sellerId])
-  @@index([price])
-  @@index([isDiscounted])
-}
-
-model CardCheck {
-  id        Int      @id @default(autoincrement())
-  
-  card      CreditCard @relation(fields: [cardId], references: [id])
-  cardId    Int
-  
-  checker   User     @relation("UserChecks", fields: [checkerId], references: [id])
-  checkerId Int
-  
-  result    CardStatus // LIVE or DEAD
-  cost      Float    @default(0.5)
-  
-  createdAt DateTime @default(now())
-  
-  @@index([checkerId])
-  @@index([cardId])
-}
-
-// Telegram Session Management
-model TelegramSession {
-  id        String   @id @default(uuid())
-  chatId    String   
-  sessionId String   @unique // Generated session identifier
-  loginCode String?  // 6-digit login code
-  isActive  Boolean  @default(true)
-  expiresAt DateTime
-  
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    Int?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@index([chatId])
-  @@index([sessionId])
-  @@index([loginCode])
-}
-
-// Payment Notifications
-model PaymentNotification {
-  id          Int      @id @default(autoincrement())
-  
-  topUp       TopUp    @relation(fields: [topUpId], references: [id])
-  topUpId     Int      @unique
-  
-  telegramUsername String?
-  notificationSent Boolean @default(false)
-  sentAt           DateTime?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([telegramUsername])
-  @@index([notificationSent])
 }
